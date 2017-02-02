@@ -1,9 +1,10 @@
 ;APS0000003B0000003B0000003B0000003B0000003B0000003B0000003B0000003B0000003B0000003B
 
-	auto	j\
-	auto	wb l:HippoPlayer.key\
-	auto	a0\
-	auto	a1\
+; VASMM68K_MOT don't support "auto" keywork, just trying to comment it out.
+;	auto	j\
+;	auto	wb l:HippoPlayer.key\
+;	auto	a0\
+;	auto	a1\
 
 	bsr.b	dokey
 
