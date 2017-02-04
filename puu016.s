@@ -23,17 +23,17 @@ ver	macro
 
 
 DEBUG	= 0
-BETA	= 0	* 0: ei beta, 1: public beta, 2: private beta
+BETA	= 0	;* 0: ei beta, 1: public beta, 2: private beta
 
-asm	= 0	* 1: AsmOnesta ajettava versio
+asm	= 0	;* 1: AsmOnesta ajettava versio
 
-zoom	= 0	* 1: zoomaava hippo
-fprog	= 0 	* 1: file add progress indicator, ei oikein toimi (kaataa)
-floadpr = 1	* 1: unpacked file load progress indicator
-PILA	= 0	* 1: pikku pila niille joilla on wRECin key muttei 060:aa
-TARK	= 0	* 1: tekstien tarkistus
-EFEKTI  = 0	* 1: efekti volumesliderill‰
-ANNOY	= 0     * 1: Unregistered version tekstej‰ ymp‰riins‰
+zoom	= 0	;* 1: zoomaava hippo
+fprog	= 0 	;* 1: file add progress indicator, ei oikein toimi (kaataa)
+floadpr = 1	;* 1: unpacked file load progress indicator
+PILA	= 0	;* 1: pikku pila niille joilla on wRECin key muttei 060:aa
+TARK	= 0	;* 1: tekstien tarkistus
+EFEKTI  = 0	;* 1: efekti volumesliderill‰
+ANNOY	= 0     ;* 1: Unregistered version tekstej‰ ymp‰riins‰
 
  ifne TARK
  ifeq asm
@@ -43,7 +43,7 @@ ANNOY	= 0     * 1: Unregistered version tekstej‰ ymp‰riins‰
  endc
  
 
-WINX	= 2	* X ja Y lis‰ykset p‰‰ikkunan grafiikkaan
+WINX	= 2	;* X ja Y lis‰ykset p‰‰ikkunan grafiikkaan
 WINY	= 3
 
 
@@ -174,12 +174,12 @@ use = 0
 
 	include	kpl_offsets.s
 
-*******************************************************************************
-*
-* Prefs tiedoston rakenne
-*
+;*******************************************************************************
+;*
+;* Prefs tiedoston rakenne
+;*
 
-prefsversio	=	20	* Prefs-tiedoston versio
+prefsversio	=	20	;* Prefs-tiedoston versio
 		rsreset
 prefs_versio		rs.b	1
 prefs_play		rs.b	1
@@ -192,8 +192,8 @@ prefs_s3mmode3		rs.b	1
 prefs_ps3mb		rs.b	1
 prefs_timeoutmode	rs.b	1
 prefs_quadmode		rs.b	1
-prefs_quadon		rs.b	1		* 1: quad oli p‰‰ll‰
-prefs_ptmix		rs.b	1		* 0: chip, 1: fast, 2: ps3m
+prefs_quadon		rs.b	1		;* 1: quad oli p‰‰ll‰
+prefs_ptmix		rs.b	1		;* 0: chip, 1: fast, 2: ps3m
 prefs_xpkid		rs.b	1
 prefs_fade		rs.b	1
 prefs_pri		rs.b	1
@@ -213,7 +213,7 @@ prefs_mainpos1		rs.l	1
 prefs_mainpos2		rs.l	1
 prefs_prefspos		rs.l	1
 prefs_quadpos		rs.l	1
-			rs	1
+_l216			rs	1
 prefs_alarm		rs	1
 prefs_moddir		rs.b	150
 prefs_prgdir		rs.b	150-1
@@ -232,14 +232,14 @@ prefs_div		rs.b	1
 prefs_early		rs.b	1
 prefs_prefix		rs.b	1
 prefs_xfd		rs.b	1
-			rs.l	1
+_l235			rs.l	1
 prefs_infopos2		rs.l	1
 prefs_arcdir		rs.b	150
 prefs_pattern		rs.b	70
 prefs_infosize		rs	1
 prefs_ps3msettings	rs.b	1
 prefs_prefsivu		rs.b	1
-prefs_kokolippu		rs.b	1		* 0: ikkuna pieni
+prefs_kokolippu		rs.b	1		;* 0: ikkuna pieni
 prefs_samplebufsiz	rs.b	1
 prefs_cybercalibration	rs.b 1
 prefs_calibrationfile	rs.b	99
@@ -259,17 +259,17 @@ prefs_samplecyber	rs.b	1
 prefs_mpegaqua		rs.b	1
 prefs_mpegadiv		rs.b	1
 prefs_medmode		rs.b	1
-			rs.b	1
+_l262			rs.b	1
 
 prefs_medrate		rs	1
 
 
 prefs_size		rs.b	0
 
-*******************************************************************************
-*
-* Scopejen muuttujat
-*
+;*******************************************************************************
+;*
+;* Scopejen muuttujat
+;*
 
  	rsreset
 ns_start	rs.l	1
@@ -282,62 +282,62 @@ ns_tempvol	rs	1
 ns_size		rs.b	0
 
 
-*******************************************************************************
-*
-* "HiP-Port":in rakenne
-*
+;*******************************************************************************
+;*
+;* "HiP-Port":in rakenne
+;*
 
 	STRUCTURE	HippoPort,MP_SIZE
-	LONG		hip_private1	* Private..
-	APTR		hip_kplbase	* Protracker replayer data area
-	WORD		hip_reserved0	* Private..
-	BYTE		hip_quit	* If non-zero, your program should quit
-	BYTE		hip_opencount	* Open count
-	BYTE		hip_mainvolume	* Main volume, 0-64
-	BYTE		hip_play	* If non-zero, HiP is playing
-	BYTE		hip_playertype 	* 33 = Protracker, 49 = PS3M. 
+	LONG		hip_private1	;* Private..
+	APTR		hip_kplbase	;* Protracker replayer data area
+	WORD		hip_reserved0	;* Private..
+	BYTE		hip_quit			:* If non-zero, your program should quit
+	BYTE		hip_opencount		:* Open count
+	BYTE		hip_mainvolume	:* Main volume, 0-64
+	BYTE		hip_play			;* If non-zero, HiP is playing
+	BYTE		hip_playertype 	;* 33 = Protracker, 49 = PS3M. 
 
-	*** Protracker ***
+	;*** Protracker ***
 	BYTE		hip_reserved2
 	APTR		hip_PTch1	* Protracker channel data for ch1
 	APTR		hip_PTch2	* ch2
 	APTR		hip_PTch3	* ch3
 	APTR		hip_PTch4	* ch4
 
-	*** PS3M ***
-	APTR		hip_ps3mleft	* Buffer for the left side
-	APTR		hip_ps3mright	* Buffer for the right side
-	LONG		hip_ps3moffs	* Playing position
-	LONG		hip_ps3mmaxoffs	* Max value for hip_ps3moffs
+	;*** PS3M ***
+	APTR		hip_ps3mleft	;* Buffer for the left side
+	APTR		hip_ps3mright	;* Buffer for the right side
+	LONG		hip_ps3moffs	;* Playing position
+	LONG		hip_ps3mmaxoffs	;* Max value for hip_ps3moffs
 
 	BYTE		hip_PTtrigger1
 	BYTE		hip_PTtrigger2
 	BYTE		hip_PTtrigger3
 	BYTE		hip_PTtrigger4
 
-	APTR		hip_listheader	* pointer to the listheader of modules
-	LONG		hip_playtime	* time played in secs
-	LONG		hip_colordiv	*
-	WORD		hip_ps3mrate	* ps3m mix rate
+	APTR		hip_listheader	;* pointer to the listheader of modules
+	LONG		hip_playtime	;* time played in secs
+	LONG		hip_colordiv	;*
+	WORD		hip_ps3mrate	;* ps3m mix rate
 
 	LABEL		HippoPort_SIZEOF 
 
 
-	*** PT channel data block
+	;*** PT channel data block
 	STRUCTURE	PTch,0
-	LONG		PTch_start	* Start address of sample
-	WORD		PTch_length	* Length of sample in words
-	LONG		PTch_loopstart	* Start address of loop
-	WORD		PTch_replen	* Loop length in words
-	WORD		PTch_volume	* Channel volume
-	WORD		PTch_period	* Channel period
-	WORD		PTch_private1	* Private...
+	LONG		PTch_start	;* Start address of sample
+	WORD		PTch_length	;* Length of sample in words
+	LONG		PTch_loopstart	;* Start address of loop
+	WORD		PTch_replen	;* Loop length in words
+	WORD		PTch_volume	;* Channel volume
+	WORD		PTch_period	;* Channel period
+	WORD		PTch_private1	;* Private...
 	
 
-*******************************************************************************
-*
-* Globaalit muuttujat ja tyˆalueet
-*
+;*******************************************************************************
+;*
+;* Globaalit muuttujat ja tyˆalueet
+;*
 
 	rsreset
 _ExecBase	rs.l	1
@@ -364,93 +364,93 @@ _XFDBase	rs.l	1
 output		rs.l	1
  endc
 
-sidlibstore1	rs.l	2		* pSid kick13 patchin varasto
+sidlibstore1	rs.l	2		:* pSid kick13 patchin varasto
 sidlibstore2	rs.l	2
 
 owntask		rs.l	1
-lockhere	rs.l	1		* currentdir-lock
+lockhere	rs.l	1		;* currentdir-lock
 cli		rs.l	1
-segment		rs.l	1	* Toisiks ekan hunkin segmentti
-fileinfoblock	rs.b	260		* 4:ll‰ jaollisessa osoitteessa!
+segment		rs.l	1	;* Toisiks ekan hunkin segmentti
+fileinfoblock	rs.b	260		;* 4:ll‰ jaollisessa osoitteessa!
 fileinfoblock2	rs.b	260		
-filecomment	rs.b	80+4		* tiedoston kommentti
-windowbase	rs.l	1		* p‰‰ohjelma
-appwindow	rs.l	1		* appwindowbase
+filecomment	rs.b	80+4	;* tiedoston kommentti
+windowbase	rs.l	1		;* p‰‰ohjelma
+appwindow	rs.l	1		;* appwindowbase
 screenlock	rs.l	1
-rastport	rs.l	1		*
-userport	rs.l	1		*
-windowbase2	rs.l	1		* prefs
-rastport2	rs.l	1		* 
-userport2	rs.l	1		*
-rastport3	rs.l	1		* quadrascope
-userport3	rs.l	1		* 
-windowbase3	rs.l	1		*
+rastport	rs.l	1		;*
+userport	rs.l	1		;*
+windowbase2	rs.l	1	;* prefs
+rastport2	rs.l	1		;* 
+userport2	rs.l	1		;*
+rastport3	rs.l	1		;* quadrascope
+userport3	rs.l	1		;* 
+windowbase3	rs.l	1	;*
 fontbase	rs.l	1
 topazbase	rs.l	1
-notifyhandle	rs.l	1		* Screennotifylle
-windowtop	rs	1		* ikkunoiden eisysteemialueen yl‰reuna
+notifyhandle	rs.l	1	;* Screennotifylle
+windowtop	rs	1	;* ikkunoiden eisysteemialueen yl‰reuna
 windowright	rs	1
 windowleft	rs	1
 windowbottom	rs	1
 windowtopb	rs	1
 gotscreeninfo	rs.b	1
-infolag		rs.b	1 * mit‰ n‰ytet‰‰n infoikkunassa: 0=sample, ~0=about
+infolag		rs.b	1	;* mit‰ n‰ytet‰‰n infoikkunassa: 0=sample, ~0=about
 
-infotaz		rs.l	1 * infoikkunan datan osoite
+infotaz		rs.l	1	;* infoikkunan datan osoite
 
 windowtop2	rs	1
 windowleft2	rs	1
 windowbottom2	rs	1
 
 
-nilfile		rs.l	1		* NIL:
+nilfile		rs.l	1		;* NIL:
 
-keycheckroutine	rs.l	1		* check_keyfile rutiinin osoite
+keycheckroutine	rs.l	1	;* check_keyfile rutiinin osoite
 
-pen_0		rs.l	1		* piirtokyn‰t
+pen_0		rs.l	1		;* piirtokyn‰t
 pen_1		rs.l	1
 pen_2		rs.l	1
 pen_3		rs.l	1
 
-WINSIZX		rs	1		* p‰‰ikkunan koot
+WINSIZX		rs	1		;* p‰‰ikkunan koot
 WINSIZY		rs	1
 
 eicheck		rs.b	1
-reghippo	rs.b 	1 		* ensimm‰inen hippo hieman sivummalle
+reghippo	rs.b 	1 		;* ensimm‰inen hippo hieman sivummalle
 
-req_file	rs.l	1		* p‰‰requesteri
-req_file2	rs.l	1		* load/save program
-req_file3	rs.l	1		* prefs
-kokolippu	rs	1		* 0: pieni
-wkork		rs	1		* korkeus-vertailu zipwindowille
-windowpos	rs	2		* Ison ikkunan paikka
-windowpos2	rs	2		* Pienen ikkunan paikka
-windowpos22	rs	2		* ja koko
-infopos2	rs	2		* sampleikkunan ja sidinfon paikka
+req_file	rs.l	1		;* p‰‰requesteri
+req_file2	rs.l	1		;* load/save program
+req_file3	rs.l	1		;* prefs
+kokolippu	rs	1		;* 0: pieni
+wkork		rs	1	;* korkeus-vertailu zipwindowille
+windowpos	rs	2	;* Ison ikkunan paikka
+windowpos2	rs	2	;* Pienen ikkunan paikka
+windowpos22	rs	2	;* ja koko
+infopos2	rs	2		;* sampleikkunan ja sidinfon paikka
 
-screenaddr	rs.l	1		* N‰ytˆn osoite
-windowpos_p	rs	2		* Prefs ikkunan paikka
-quadpos		rs	2		* Quad-ikkunan paikka
-wbkorkeus	rs	1		* Workbench n‰ytˆn korkeus
+screenaddr	rs.l	1	;* N‰ytˆn osoite
+windowpos_p	rs	2	;* Prefs ikkunan paikka
+quadpos		rs	2	;* Quad-ikkunan paikka
+wbkorkeus	rs	1	;* Workbench n‰ytˆn korkeus
 wbleveys	rs	1
-prefs_prosessi	rs	1		* ei-0: Prefs-prosessi p‰‰ll‰
-filereq_prosessi rs	1		* ei-0: Files-prosessi p‰‰ll‰
-quad_prosessi	rs	1		* ...
-info_prosessi	rs	1		* ...
-about_moodi	rs.b	1		* 0: normaali, 1: moduleinfo
-filereqmode	rs.b	1		* onko add vai insert
-fileinsert	rs.l	1		* node jonka j‰lkeen insertti
-haluttiinuusimodi rs	1		* new-nappulaa ja play:t‰ varten
-quad_task	rs.l	1		* Scopen taski
-quadon		rs.b	1		* jos 1: quad oli p‰‰ll‰
-tapa_quad	rs.b	1		* scopelle lopetus lippu
-scopeflag	rs.b	1		* ~0: scope p‰‰ll‰
-infoon		rs.b	1		* 1: info on
+prefs_prosessi	rs	1	;* ei-0: Prefs-prosessi p‰‰ll‰
+filereq_prosessi rs	1	;* ei-0: Files-prosessi p‰‰ll‰
+quad_prosessi	rs	1	;* ...
+info_prosessi	rs	1	;* ...
+about_moodi	rs.b	1	;* 0: normaali, 1: moduleinfo
+filereqmode	rs.b	1	;* onko add vai insert
+fileinsert	rs.l	1		;* node jonka j‰lkeen insertti
+haluttiinuusimodi rs	1	;* new-nappulaa ja play:t‰ varten
+quad_task	rs.l	1	;* Scopen taski
+quadon		rs.b	1	;* jos 1: quad oli p‰‰ll‰
+tapa_quad	rs.b	1	;* scopelle lopetus lippu
+scopeflag	rs.b	1		;* ~0: scope p‰‰ll‰
+infoon		rs.b	1	;* 1: info on
 
-exitmainprogram	rs.b	1		* <>1: poistu ohjelmasta
-startuperror	rs.b	1		* virhe k‰ynnistyksess‰
-oldchip		rs	1		* free memille vertailua varten
-oldfast		rs	1		* ...
+exitmainprogram	rs.b	1	;* <>1: poistu ohjelmasta
+startuperror	rs.b	1		;* virhe k‰ynnistyksess‰
+oldchip		rs	1		;* free memille vertailua varten
+oldfast		rs	1		;* ...
 
 prefsexit	rs.b	1		* ~0: prefssist‰ poistuttu
 lprgadd		rs.b	1		* ~0: loadprg addaa vanhan per‰‰n (join)
