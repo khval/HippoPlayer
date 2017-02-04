@@ -1,18 +1,18 @@
 	IFND DEVICES_AHI_I
 DEVICES_AHI_I		SET	1
 
-**
-**	$VER: ahi.i 4.2 (27.4.97)
-**
-**	ahi.device definitions
-**
-**	(C) Copyright 1994-1997 Martin Blom
-**	All Rights Reserved.
-**
-** (TAB SIZE: 8)
-**
+;**
+;**	$VER: ahi.i 4.2 (27.4.97)
+;**
+;**	ahi.device definitions
+;**
+;**	(C) Copyright 1994-1997 Martin Blom
+;**	All Rights Reserved.
+;**
+;** (TAB SIZE: 8)
+;**
 
-*------------------------------------------------------------------------*
+;*------------------------------------------------------------------------*
 
 
 	IFND EXEC_TYPES_I
@@ -27,10 +27,10 @@ DEVICES_AHI_I		SET	1
 	INCLUDE 'utility/tagitem.i'
 	ENDC
 
-*------------------------------------------------------------------------*
+;*------------------------------------------------------------------------*
 
 
-*** MACROS
+;*** MACROS
 
 Fixed	MACRO					; A fixed-point value, 16 bits
 \1	    EQU     SOFFSET			; to the left of the point and
@@ -289,7 +289,7 @@ AHIDB_MaxPlaySamples	EQU AHI_TagBase+126	; It's sample *frames*
 AHIDB_MaxRecordSamples	EQU AHI_TagBase+127	; It's sample *frames*
 AHIDB_MixFreq	   	EQU AHI_TagBase+128
 AHIDB_FullDuplex	EQU AHI_TagBase+129	; Boolean
-* --- New for V2, they will be ignored by V1 ---
+; --- New for V2, they will be ignored by V1 ---
 AHIDB_MinMonitorVolume	EQU AHI_TagBase+130
 AHIDB_MaxMonitorVolume	EQU AHI_TagBase+131
 AHIDB_MinInputGain	EQU AHI_TagBase+132
@@ -297,16 +297,16 @@ AHIDB_MaxInputGain	EQU AHI_TagBase+133
 AHIDB_MinOutputVolume	EQU AHI_TagBase+134
 AHIDB_MaxOutputVolume	EQU AHI_TagBase+135
 AHIDB_Inputs		EQU AHI_TagBase+136
-AHIDB_InputArg		EQU AHI_TagBase+137	* ti_Data is input index
+AHIDB_InputArg		EQU AHI_TagBase+137	; ti_Data is input index
 AHIDB_Input		EQU AHI_TagBase+138
 AHIDB_Outputs		EQU AHI_TagBase+139
-AHIDB_OutputArg		EQU AHI_TagBase+140	* ti_Data is input index
+AHIDB_OutputArg		EQU AHI_TagBase+140	; ti_Data is input index
 AHIDB_Output		EQU AHI_TagBase+141
-* --- New for V4, they will be ignored by V2 and earlier ---
+; --- New for V4, they will be ignored by V2 and earlier ---
 AHIDB_Data		EQU AHI_TagBaseR+142	; Private!
 
  ; AHI_BestAudioIDA tags
-* --- New for V4, they will be ignored by V2 and earlier ---
+; --- New for V4, they will be ignored by V2 and earlier ---
 AHIB_Dizzy		EQU (AHI_TagBase+190)
 
  ; AHI_AudioRequestA tags
@@ -443,7 +443,7 @@ AHI_DEBUG_ALL		EQU (3)
 	STRUCTURE AHIRequest,0
 	STRUCT	ahir_Std,IOSTD_SIZE		; Standard IO request
 	UWORD	ahir_Version			; Needed version
-* --- New for V4, they will be ignored by V2 and earlier ---
+; --- New for V4, they will be ignored by V2 and earlier ---
 	UWORD	ahir_Pad1
 	ULONG	ahir_Private1			; Hands off!
 	ULONG	ahir_Private2			; Hands off!
