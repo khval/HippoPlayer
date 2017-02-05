@@ -1419,7 +1419,7 @@ quad_segment
 _l1421	dc.l	0
 	jmp	quad_code
 
-;	dc	0	; pad
+;	dc.w	0	; pad
 
 
 
@@ -2924,22 +2924,22 @@ tulostavirhe
 .x	popm	all
 	rts
 
-.r1	;dc	(640-((.r1e-.r1-2)*8))/2
-	;dc	208
+.r1	;dc.w	(640-((.r1e-.r1-2)*8))/2
+	;dc.w	208
 	dc.b	176
 	dc.b	11
 	dc.b	"HiP frozen: no reqtools.library V38+!",0,0
 .r1e
  even
 .r2	
-	;dc	(640-((.r2e-.r2-2)*8))/2
+	;dc.w	(640-((.r2e-.r2-2)*8))/2
 	dc.b	212
 	dc.b	11
 	dc.b	"HiP: no CIA interrupts!",0,0
 .r2e
  even
 .r3	
-	;dc	(640-((.r3e-.r3-2)*8))/2
+	;dc.w	(640-((.r3e-.r3-2)*8))/2
 	dc.b	248
 	dc.b	11
  	dc.b	"HiP: no window!",0,0
@@ -3809,8 +3809,8 @@ wrender
 	beq.b	.nel
 
 	movem	4(a3),plx1/ply1/plx2/ply2
-	add	plx1,plx2
-	add	ply1,ply2
+	add.w	plx1,plx2
+	add.w	ply1,ply2
 	subq	#1,ply2
 	subq	#1,plx1
 
@@ -6252,150 +6252,150 @@ nappuloita
 
 .nabs
 
-	dc	$12
+	dc.w	$12
 	dr	execuutti
 
 
-	dc	$13
+	dc.w	$13
 	dr	rbutton20
 
-	dc	$36
+	dc.w	$36
 	dr	rbutton11
 
-	dc	$24
+	dc.w	$24
 	dr	.pm1
-	dc	$25
+	dc.w	$25
 	dr	.pm2	
 
-	dc	$31
+	dc.w	$31
 	dr	.scopetoggle
 
-	dc	$37
+	dc.w	$37
 	dr	rmove
-	dc	$14
+	dc.w	$14
 	dr	rinsert
-	dc	$21
+	dc.w	$21
 	dr	rsort
 
-	dc	$11
+	dc.w	$11
 	dr	rsaveprog
-	dc	$19
+	dc.w	$19
 	dr	rloadprog
-	dc	$1a
+	dc.w	$1a
 	dr	rloadprog0
 
-	dc	$27
+	dc.w	$27
 	dr	rbutton6	; prev
-	dc	$28
+	dc.w	$28
 	dr	rbutton5	; next
-	dc	$4f
+	dc.w	$4f
 	dr	.pso		; prev song
-	dc	$4e
+	dc.w	$4e
 	dr	.nso		; next song
 
-	dc	7
+	dc.w	7
 	dr	.showtime
-	dc	8
+	dc.w	8
 	dr	.showclock
-	dc	9
+	dc.w	9
 	dr	.showname
-	dc	$a
+	dc.w	$a
 	dr	.showtime2
 
-	dc	$45
+	dc.w	$45
 	dr	.qui
 
-	dc	$44
+	dc.w	$44
 	dr	rbutton1
 
-	dc	$40
+	dc.w	$40
 	dr	stopcont
 
-	dc	$22
+	dc.w	$22
 	dr	rbutton8
-	dc	$41
+	dc.w	$41
 	dr	rbutton8
 
-	dc	$42
+	dc.w	$42
 	dr	rbutton4
 
-	dc	$38
+	dc.w	$38
 	dr	rbutton_kela1
-	dc	$39
+	dc.w	$39
 	dr	rbutton_kela2
 
-	dc	$4c
+	dc.w	$4c
 	dr	lista_ylos
 
-	dc	$4d
+	dc.w	$4d
 	dr	lista_alas
 
-	dc	$33
+	dc.w	$33
 	dr	rbutton9
 
-	dc	$20
+	dc.w	$20
 	dr	rbutton7
 
-	dc	$34
+	dc.w	$34
 	dr	.voldown
-	dc	$35
+	dc.w	$35
 	dr	.volup
 
-	dc	$5f
+	dc.w	$5f
 	dr	rbutton10
-	dc	$17
+	dc.w	$17
 	dr	.infoo
 
-	dc	0
+	dc.w	0
 	dr	.ocl
 
-	dc	$2b
+	dc.w	$2b
 	dr	.rand
 
-	dc	$10
+	dc.w	$10
 	dr	add_divider
 
-	dc	$18
+	dc.w	$18
 	dr	comment_file
 
 *** Numeron‰ppis
 
 
-	dc	$2d
+	dc.w	$2d
 	dr	.pso		; prev song
-	dc	$2f
+	dc.w	$2f
 	dr	.nso		; next song
-	dc	$3e
+	dc.w	$3e
 	dr	lista_ylos	; select prev
-	dc	$1e
+	dc.w	$1e
 	dr	lista_alas	; select next
-	dc	$3d
+	dc.w	$3d
 	dr	rbutton6	; play prev
-	dc	$3f
+	dc.w	$3f
 	dr	rbutton5	; play next
-	dc	$1d
+	dc.w	$1d
 	dr	rbutton_kela1	; rewind
-	dc	$1f
+	dc.w	$1f
 	dr	rbutton_kela2	; fast forward
-	dc	$2e
+	dc.w	$2e
 	dr	stopcont		; stop/cont
-	dc	$f
+	dc.w	$f
 	dr	rbutton7		; add
-	dc	$5d
+	dc.w	$5d
 	dr	.rand		; play random mod
-	dc	$4a
+	dc.w	$4a
 	dr	.voldown		; volume down
-	dc	$5e
+	dc.w	$5e
 	dr	.volup		; volume up
-	dc	$43
+	dc.w	$43
 	dr	rbutton1		; play
-	dc	$3c	
+	dc.w	$3c	
 	dr	rloadprog		; load program
-	dc	$5a
+	dc.w	$5a
 	dr	rbutton8		; del mod
-	dc	$5b
+	dc.w	$5b
 	dr	rmove		; move mod
-	dc	$5c
+	dc.w	$5c
 	dr	rinsert		; insert mods
 
 
@@ -8354,7 +8354,7 @@ filereq_code
 	bra.b	adddivider
 
 .t	dc.b	"My stomach feels content.",0
-.barf	dc.b	"/\/\/\/\/\/\/\",0
+.barf	dc.b	"/\\/\\/\\/\\/\\/\\/\\",0
 	even
 
 
@@ -8627,7 +8627,7 @@ printfilewin
 
 filewin		dc.l	0
 filerastport	dc.l	0
-fileamount	dc	0
+fileamount	dc.w	0
 
 closefilewin
 	pushm	all
@@ -8641,8 +8641,8 @@ closefilewin
 
 
 p
-	dc	0,0			; place 
-	dc	0,0			; size
+	dc.w	0,0			; place 
+	dc.w	0,0			; size
 	dc.b	0,0			; beam v‰rit
 	dc.l	idcmpflags4
 	dc.l	wflags4
@@ -8651,9 +8651,9 @@ p
 	dc.l	0	; title
 	dc.l	0
 	dc.l	0	
-	dc	0,0
-	dc	0,0
-	dc	WBENCHSCREEN
+	dc.w	0,0
+	dc.w	0,0
+	dc.w	WBENCHSCREEN
 	dc.l	enw_tags
  endc
 
@@ -9845,7 +9845,7 @@ defarc
 
 .arc	dc.b	"RAM:",0
 
-.lha	dc.b	'c:lha >nil: x -IqmMNQw "%s"',0
+.lha	dc.b	"c:lha >nil: x -IqmMNQw \"%s\"",0
 * m	no messages for query
 * q	be quiet
 * M	no autoshow files
@@ -9853,10 +9853,10 @@ defarc
 * I	ignore LHAOPTS variable
 * Qw	disable wildcards
 
-.zip	dc.b	'c:unzip >nil: -qq "%s"',0
+.zip	dc.b	"c:unzip >nil: -qq \"%s\"",0
 * qq	be very quiet
 
-.lzx	dc.b 'c:lzx >nil: -m -q x "%s"',0
+.lzx	dc.b "c:lzx >nil: -m -q x \"%s\"",0
  even
 	
 
@@ -10103,7 +10103,7 @@ drawtexture
 	movem.l	(sp)+,d0-a6
 	rts
 
-.texture dc	$5555,$aaaa
+.texture dc.w	$5555,$aaaa
 
 
 *******************************************************************************
@@ -16153,15 +16153,15 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 
 ** PT
 
-.form0	dc.b	'%02ld %-22.22s        %6ld',ILF,ILF2,0
+.form0	dc.b	"%02ld %-22.22s        %6ld",ILF,ILF2,0
 
 ** PS3M
 
 .medform 
-.form2	dc.b	`%03ld %-28.28s %6ld`,ILF,ILF2,0
+.form2	dc.b	"%03ld %-28.28s %6ld",ILF,ILF2,0
 
 .thxform
- 	dc.b	`%03ld %-35.35s`,ILF,ILF2,0
+ 	dc.b	"%03ld %-35.35s",ILF,ILF2,0
 
  even
 
@@ -17171,9 +17171,9 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 	bra.w	.msgloop
 
 .periods
-	dc	856,808,762,720,678,640,604,570,538,508,480,453
-	dc	428,404,381,360,339,320,302,285,269,254,240,226
-	dc	214,202,190,180,170,160,151,143,135,127,120,113
+	dc.w	856,808,762,720,678,640,604,570,538,508,480,453
+	dc.w	428,404,381,360,339,320,302,285,269,254,240,226
+	dc.w	214,202,190,180,170,160,151,143,135,127,120,113
 
 
 freeinfosample
@@ -17992,7 +17992,7 @@ rexxmessage
 	dr	.ps3m3,.ps3mrate
 	dr	.loadp,.loadprefs
 	dr	.sampt,rbutton10b
-	dc	0
+	dc.w	0
 
 .playt	dc.b	"PLAY",0
 .cleart	dc.b	"CLEAR",0
@@ -18448,7 +18448,7 @@ rexxmessage
 
 
 
-.empty	dc	0
+.empty	dc.w	0
 
 ** a1:ssa oleva ascii-luku D0:aan
 a2i	pushm	d1/a0/a6
@@ -23801,9 +23801,9 @@ id_TFMX_PRO
 	rts
 
 TFMX_IDs
-	dc.b	'tfmxsong',0
-	dc.b	'TFMX-SONG',0
-	dc.b	'TFMX_SONG',0,0
+	dc.b	"tfmxsong",0
+	dc.b	"TFMX-SONG",0
+	dc.b	"TFMX_SONG",0,0
 
 
 
@@ -24892,8 +24892,7 @@ p_protracker
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
 .flags	
- dc pf_cont!pf_stop!pf_volume!pf_song!pf_kelaus!pf_poslen!pf_end!pf_scope!pf_ciakelaus2
-
+	dc.w pf_cont!pf_stop!pf_volume!pf_song!pf_kelaus!pf_poslen!pf_end!pf_scope!pf_ciakelaus2
 	dc.b	"Protracker",0
  even
 
@@ -25092,7 +25091,7 @@ p_protracker
 	lea	(a2,d2.l),a1
 
 ************************ OPT
-	printt	 Opti!
+;	printt	 Opti!
 
 	moveq	#1024/4/4-1,d2
 .look	
@@ -25515,10 +25514,10 @@ modlen
 
 .datastart	
 
-.songend	dc	0
-.Tempo		dc	125
-.tempoval	dc	0
-.tempoflag	dc	0
+.songend	dc.w	0
+.Tempo		dc.w	125
+.tempoval	dc.w	0
+.tempoflag	dc.w	0
 .time		dc.l	0
 
 .mt_chan1temp	ds.b	8
@@ -25546,7 +25545,7 @@ modlen
  even
 .mt_PatternPos	dc.w 0
  even
-.varmistus	dc	0
+.varmistus	dc.w	0
 
  even
 
@@ -25572,7 +25571,7 @@ p_sid	jmp	.init(pc)
 	jmp	.eteen(pc)
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_song!pf_kelauseteen
+	dc.w	pf_cont!pf_stop!pf_song!pf_kelauseteen
 	dc.b	"PSID",0
 .flag	dc.b	0
  even
@@ -25937,7 +25936,7 @@ p_deltamusic
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_volume!pf_ciakelaus
 	dc.b	"Delta Music v2.0",0
  even
 
@@ -26000,7 +25999,7 @@ p_futurecomposer13
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume!pf_end!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_volume!pf_end!pf_ciakelaus
 	dc.b	"Future Composer v1.0-1.3",0
  even
 
@@ -26062,7 +26061,7 @@ p_futurecomposer14
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume!pf_end!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_volume!pf_end!pf_ciakelaus
 	dc.b	"Future Composer v1.4",0
  even
 
@@ -26125,7 +26124,7 @@ p_soundmon
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
- dc	pf_cont!pf_stop!pf_poslen!pf_kelaus!pf_volume!pf_end!pf_ciakelaus2
+	dc.w	pf_cont!pf_stop!pf_poslen!pf_kelaus!pf_volume!pf_end!pf_ciakelaus2
 	dc.b	"SoundMon v2.0",0
  even
 
@@ -26201,7 +26200,7 @@ p_soundmon3
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
- dc	pf_cont!pf_stop!pf_poslen!pf_kelaus!pf_volume!pf_end!pf_ciakelaus2
+	dc.w	pf_cont!pf_stop!pf_poslen!pf_kelaus!pf_volume!pf_end!pf_ciakelaus2
 	dc.b	"SoundMon v3.0",0
  even
 
@@ -26278,7 +26277,7 @@ p_jamcracker
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_end!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_end!pf_ciakelaus
 	dc.b	"JamCracker",0
  even
 
@@ -26339,7 +26338,7 @@ p_musicassembler
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_volume!pf_ciakelaus
 	dc.b	"Music Assembler",0
  even
 
@@ -26409,7 +26408,7 @@ p_fred
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_song!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_song!pf_ciakelaus
 	dc.b	"Fred",0
  even
 
@@ -26475,7 +26474,7 @@ p_sonicarranger
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_song
+	dc.w	pf_song
 	dc.b	"Sonic Arranger",0
  even
 
@@ -26528,7 +26527,7 @@ p_sidmon1
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_stop!pf_cont!pf_ciakelaus
+	dc.w	pf_stop!pf_cont!pf_ciakelaus
 	dc.b	"SIDMon v1.0",0
  even
 
@@ -26584,7 +26583,7 @@ p_oktalyzer
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_volume!pf_end
+	dc.w	pf_volume!pf_end
 	dc.b	"Oktalyzer",0
  even
 
@@ -26662,7 +26661,7 @@ p_tfmx
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_song!pf_volume!pf_kelaus!pf_poslen!pf_end
+	dc.w	pf_cont!pf_stop!pf_song!pf_volume!pf_kelaus!pf_poslen!pf_end
 	dc.b	"TFMX",0
  even
 
@@ -26902,7 +26901,8 @@ tfmx_L000148	dcb.l	$2,0
 	dcb.w	$2,0
 tfmxi5	dc.l	0
 TFMX_Pro.MSG0 dc.b "TFMX",0
- even
+
+	even
 
 
 * palauttaa songien m‰‰r‰n d0:ssa
@@ -26941,7 +26941,7 @@ p_tfmx7
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
-	dc	pf_volume!pf_song!pf_poslen!pf_kelaus!pf_end
+	dc.w	pf_volume!pf_song!pf_poslen!pf_kelaus!pf_end
 	dc.b	"TFMX 7ch",0
  even
 
@@ -27078,7 +27078,7 @@ p_med	jmp	.medinit(pc)
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
-.flgs	dc	pf_stop!pf_cont!pf_poslen!pf_kelaus!pf_song
+.flgs	dc.w	pf_stop!pf_cont!pf_poslen!pf_kelaus!pf_song
 	dc.b	"MED "
 .nam1	dc.b	"     "
 .nam2	dc.b	"      ",0
@@ -27434,7 +27434,7 @@ p_player
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_stop!pf_cont!pf_volume
+	dc.w	pf_stop!pf_cont!pf_volume
 	dc.b	"The Player 6.1A",0
  even
 
@@ -27547,7 +27547,7 @@ p_markii
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_stop!pf_cont!pf_ciakelaus
+	dc.w	pf_stop!pf_cont!pf_ciakelaus
 	dc.b	"Mark II",0
  even
 
@@ -27608,7 +27608,7 @@ p_mon	jmp	.moninit(pc)
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_stop!pf_cont!pf_song!pf_volume!pf_ciakelaus
+	dc.w	pf_stop!pf_cont!pf_song!pf_volume!pf_ciakelaus
 	dc.b	"Maniacs of Noise",0
 
  even
@@ -27683,7 +27683,7 @@ p_dw	jmp	.dwinit(pc)
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_stop!pf_cont!pf_song!pf_ciakelaus
+	dc.w	pf_stop!pf_cont!pf_song!pf_ciakelaus
 	dc.b	"David Whittaker",0
 
  even
@@ -27760,7 +27760,8 @@ p_hippelcoso
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	jmp	.ahiupdate(pc)
-.liput	dc pf_cont!pf_stop!pf_end!pf_volume!pf_song!pf_ciakelaus!pf_ahi
+.liput
+	dc.w	 pf_cont!pf_stop!pf_end!pf_volume!pf_song!pf_ciakelaus!pf_ahi
 	dc.b	"Hippel-COSO",0
  even
 
@@ -27900,7 +27901,7 @@ p_hippel
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_song!pf_ciakelaus
+	dc.w	pf_cont!pf_stop!pf_song!pf_ciakelaus
 	dc.b	"Hippel",0
  even
 
@@ -27964,7 +27965,7 @@ p_digibooster
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
-	dc	pf_poslen!pf_kelaus!pf_volume!pf_stop!pf_cont!pf_end
+	dc.w	pf_poslen!pf_kelaus!pf_volume!pf_stop!pf_cont!pf_end
 	dc.b	"DIGI Booster",0
  even
 
@@ -28062,11 +28063,11 @@ p_digibooster
 	moveq	#0,d0
 	rts	
 
-.stopcont dc	0
-.pos	dc.l	0
+.stopcont	dc.w	0
+.pos		dc.l	0
 .maxpos	dc.l	0
-.pattpos dc.l	0
-.vol	dc.l	0
+.pattpos	dc.l	0
+.vol		dc.l	0
 
 
 
@@ -28113,7 +28114,7 @@ p_digiboosterpro
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	jmp	.ahiupdate(pc)
-	dc	pf_volume!pf_stop!pf_cont!pf_ahi!pf_poslen!pf_kelaus!pf_end
+	dc.w	pf_volume!pf_stop!pf_cont!pf_ahi!pf_poslen!pf_kelaus!pf_end
 	dc.b	"DIGI Booster Pro",0
  even
 
@@ -28240,7 +28241,7 @@ p_thx
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume!pf_end!pf_song!pf_kelaus!pf_poslen
+	dc.w	pf_cont!pf_stop!pf_volume!pf_end!pf_song!pf_kelaus!pf_poslen
 	dc.b	"AHX Sound System",0
  even
 
@@ -28461,7 +28462,7 @@ p_mline
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume!pf_song
+	dc.w	pf_cont!pf_stop!pf_volume!pf_song
 	dc.b	"MusiclineEditor",0
  even
 
@@ -28592,7 +28593,7 @@ p_aon
 	dc.l	$4e754e75
 	dc.l	$4e754e75
 	dc.l	$4e754e75
-	dc	pf_cont!pf_stop!pf_volume
+	dc.w	pf_cont!pf_stop!pf_volume
 	dc.b	"Art Of Noise 4ch",0
  even
 
@@ -28672,7 +28673,7 @@ p_multi	jmp	.s3init(pc)
 	jmp	.eteen(pc)
 	jmp	.taakse(pc)
 	jmp	ps3m_boost(pc)		* ahiupdate
- dc pf_cont!pf_stop!pf_volume!pf_kelaus!pf_poslen!pf_end!pf_scope!pf_ahi
+ dc.w pf_cont!pf_stop!pf_volume!pf_kelaus!pf_poslen!pf_end!pf_scope!pf_ahi
 	dc.b	"PS3M",0
  even
 
@@ -28987,12 +28988,12 @@ id_ps3m		pushm	d1-a6
 	move.l	a4,a0
 ;	move.l	moduleaddress(a5),a0
 
-	cmp.l	#`SCRM`,44(a0)
+	cmp.l	#"SCRM",44(a0)
 	beq.b	.s3m
 
 	move.l	(a0),d0
 	lsr.l	#8,d0
-	cmp.l	#`MTM`,d0
+	cmp.l	#"MTM",d0
 	beq.b	.mtm
 
 	move.l	a0,a1
@@ -29004,27 +29005,27 @@ id_ps3m		pushm	d1-a6
 	bra.b	.xm
 
 .j	move.l	1080(a0),d0
-	cmp.l	#`OCTA`,d0
+	cmp.l	#"OCTA",d0
 	beq.b	.fast8
-	cmp.l	#`M.K.`,d0
+	cmp.l	#"M.K.",d0
 	beq.b	.pro4
-	cmp.l	#`M!K!`,d0
+	cmp.l	#"M!K!",d0
 	beq.b	.pro4
-	cmp.l	#`FLT4`,d0
+	cmp.l	#"FLT4",d0
 	beq.b	.pro4
 
 	move.l	d0,d1
 	and.l	#$ffffff,d1
-	cmp.l	#`CHN`,d1
+	cmp.l	#"CHN",d1
 	beq.b	.chn
 
 	and.l	#$ffff,d1
-	cmp.l	#`CH`,d1
+	cmp.l	#"CH",d1
 	beq.b	.ch
 
 	move.l	d0,d1
 	and.l	#$ffffff00,d1
-	cmp.l	#`TDZ<<8`,d1
+	cmp.l	#"TDZ"<<8,d1
 	beq.b	.tdz
 	moveq	#1,d0
 	bra.b	.init
@@ -29044,9 +29045,9 @@ id_ps3m		pushm	d1-a6
 	rts
 
 
-.xmsign		dc.b	`Extended Module:`
+.xmsign		dc.b	"Extended Module:"
  even
-ps3minitcount	dc	0
+ps3minitcount	dc.w	0
 
 
 
@@ -29069,7 +29070,7 @@ p_sample
 	dc.l	$4e754e75		* Eteen
 	dc.l	$4e754e75		* Taakse
 	jmp	.ahiup(pc)		* AHI Update
-	dc	pf_volume!pf_scope!pf_stop!pf_cont!pf_end!pf_ahi
+	dc.w	pf_volume!pf_scope!pf_stop!pf_cont!pf_end!pf_ahi
 .name	dc.b	"                        ",0
  even
 
@@ -29201,7 +29202,7 @@ xfdname		dc.b	"xfdmaster.library",0
 *******
 text_attr
 	dc.l	topaz		* ta_Name
-	dc	8		* ta_YSize
+	dc.w	8		* ta_YSize
 	dc.b	0		* ta_Style
 	dc.b	0		* ta_Flags
 
@@ -29213,10 +29214,10 @@ topaz	dc.b	"topaz.font",0
 
 * p‰‰-ikkuna
 winstruc
-	dc	360	;vas.yl‰k.x-koord.
-	dc	23	;---""--- y-koord
-wsizex	dc	0	* sizex
-wsizey	dc	0	* 181+25 ja 11
+	dc.w	360	;vas.yl‰k.x-koord.
+	dc.w	23	;---""--- y-koord
+wsizex	dc.w	0	* sizex
+wsizey	dc.w	0	* 181+25 ja 11
 colors	dc.b	2,1	;palkin v‰rit
 idcmpmw	dc.l	idcmpflags
 	dc.l	wflags
@@ -29225,9 +29226,9 @@ idcmpmw	dc.l	idcmpflags
 	dc.l	windowname1
 	dc.l	0	;screen struc
 	dc.l	0	;bitmap struc
-	dc	0,0		* min x,y
-	dc	1000,1000	* max x,y
-	dc	WBENCHSCREEN
+	dc.w	0,0		* min x,y
+	dc.w	1000,1000	* max x,y
+	dc.w	WBENCHSCREEN
 	dc.l	.t
 
 *** Kick2.0+ window extension
@@ -29249,9 +29250,9 @@ gadgets
 
 * prefs-ikkuna
 winstruc2
-	dc	0,0
+	dc.w	0,0
 prefssiz
-	dc	452,170
+	dc.w	452,170
 colors2	dc.b	2,1
 	dc.l	idcmpflags2
 	dc.l	wflags2
@@ -29260,9 +29261,9 @@ colors2	dc.b	2,1
 	dc.l	.w
 	dc.l	0	;screen struc
 	dc.l	0	;bitmap struc
-	dc	0,0	* min x,y
-	dc	1000,1000 * max x,y
-	dc	WBENCHSCREEN
+	dc.w	0,0	* min x,y
+	dc.w	1000,1000 * max x,y
+	dc.w	WBENCHSCREEN
 	dc.l	enw_tags
 
 .w	dc.b	"HippoPrefs"
@@ -29277,9 +29278,9 @@ wreg2
 
 * quadrascope-ikkuna
 winstruc3
-	dc	259
-	dc	157
-quadsiz	dc	340,85
+	dc.w	259
+	dc.w	157
+quadsiz	dc.w	340,85
 	dc.b	2,1	;palkin v‰rit
 	dc.l	idcmpflags3
 	dc.l	wflags3
@@ -29288,9 +29289,9 @@ quadsiz	dc	340,85
 quadtitl dc.l	.t
 	dc.l	0
 	dc.l	0	
-	dc	0,0	* min x,y
-	dc	1000,1000 * max x,y
-	dc	WBENCHSCREEN
+	dc.w	0,0	* min x,y
+	dc.w	1000,1000 * max x,y
+	dc.w	WBENCHSCREEN
 	dc.l	enw_tags
 
 .t	dc.b	"HippoScope"
@@ -29305,9 +29306,9 @@ wreg3
 
 * prefs selector -ikkuna
 winlistsel
-	dc	0,0	* paikka 
+	dc.w	0,0	* paikka 
 winlistsiz
-	dc	0,0	* koko
+	dc.w	0,0	* koko
 ;	dc.b	2,1	;palkin v‰rit
 	dc.b	0,0	;palkin v‰rit
 	dc.l	idcmpflags4
@@ -29317,9 +29318,9 @@ winlistsiz
 	dc.l	0	; title
 	dc.l	0
 	dc.l	0	
-	dc	0,0	 * min x,y
-	dc	1000,1000 * max x,y
-	dc	WBENCHSCREEN
+	dc.w	0,0	 * min x,y
+	dc.w	1000,1000 * max x,y
+	dc.w	WBENCHSCREEN
 	dc.l	enw_tags
 
 
@@ -29339,9 +29340,9 @@ sivu6		include	gadgets/prefs_sivu6.s
 *** Samplename ikkuna
 
 swinstruc
-	dc	0	;vas.yl‰k.x-koord.
-	dc	0	;---""--- y-koord
-swinsiz	dc	361-5,150-13*8-2
+	dc.w	0	;vas.yl‰k.x-koord.
+	dc.w	0	;---""--- y-koord
+swinsiz	dc.w	361-5,150-13*8-2
 colors3	dc.b	2,1	;palkin v‰rit
 	dc.l	sidcmpflags
 sflags	dc.l	swflags
@@ -29350,7 +29351,7 @@ sflags	dc.l	swflags
 	dc.l	.w
 	dc.l	0	;screen struc
 	dc.l	0	
-	dc	0,0,0,0,WBENCHSCREEN
+	dc.w	0,0,0,0,WBENCHSCREEN
 	dc.l	enw_tags
 
 .w	dc.b	"HippoInfo"
@@ -29391,21 +29392,21 @@ enw_tags
 *** file ja infoslider imagestruktuurit
 
 
-slimage		dc	0	* leftedge
-		dc	0	* topedge
-		dc	16	* width
-slimheight	dc	8	* heigh
-		dc	2	* depth
+slimage		dc.w	0	* leftedge
+		dc.w	0	* topedge
+		dc.w	16	* width
+slimheight	dc.w	8	* heigh
+		dc.w	2	* depth
 		dc.l	slim	* data
 		dc.b	%11	* planepick
 		dc.b	0	* planeon/onff
 		dc.l	0	* nextimage
 
-slimage2	dc	0	* leftedge
-		dc	0	* topedge
-		dc	16	* width
-slim2height	dc	8	* heigh
-		dc	2	* depth
+slimage2	dc.w	0	* leftedge
+		dc.w	0	* topedge
+		dc.w	16	* width
+slim2height	dc.w	8	* heigh
+		dc.w	2	* depth
 		dc.l	slim2	* data
 		dc.b	%11	* planepick
 		dc.b	0	* planeon/onff
@@ -29413,12 +29414,12 @@ slim2height	dc	8	* heigh
 
 
 
-slim1a	dc	%0000000000000000
-slim2a	dc	%0000000000000001
-slim3a	dc	%0111111111111111
-slim1b	dc	%1111111111111110
-slim2b	dc	%1000000000000000
-slim3b	dc	%0000000000000000
+slim1a	dc.w	%0000000000000000
+slim2a	dc.w	%0000000000000001
+slim3a	dc.w	%0111111111111111
+slim1b	dc.w	%1111111111111110
+slim2b	dc.w	%1000000000000000
+slim3b	dc.w	%0000000000000000
 
 
 ** PC -> Amiga taulukko, jonkinlainen
@@ -29463,7 +29464,7 @@ asciitable
 	section	mini,data_c
 
 hippohead	incbin	gfx/hip.raw
-tickdata	dc	$001c,$0030,$0060,$70c0,$3980,$1f00,$0e00
+tickdata	dc.w	$001c,$0030,$0060,$70c0,$3980,$1f00,$0e00
 
 
 * 16x4 pixeli‰
@@ -29627,10 +29628,10 @@ ps3memptysample
 nullsample	ds.l	1
 
 ; tilaa filebox-sliderin imagelle
-slim	ds	410*2
+slim		ds.w		410*2
 
 * sampleinfo-slideri
-slim2	ds	410*2
+slim2	ds.w		410*2
 
 
 	section	udnm,bss_p
