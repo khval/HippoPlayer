@@ -170,7 +170,7 @@ check	macro
 use = 0
 	include	player61.i
 
-	incdir
+	incdir ""
 
 	include	kpl_offsets.s
 
@@ -6253,36 +6253,36 @@ nappuloita
 .nabs
 
 	dc.w	$12
-	dr	execuutti
+	dr.w	execuutti
 
 
 	dc.w	$13
-	dr	rbutton20
+	dr.w	rbutton20
 
 	dc.w	$36
-	dr	rbutton11
+	dr.w	rbutton11
 
 	dc.w	$24
-	dr	.pm1
+	dr.w	.pm1
 	dc.w	$25
-	dr	.pm2	
+	dr.w	.pm2	
 
 	dc.w	$31
-	dr	.scopetoggle
+	dr.w	.scopetoggle
 
 	dc.w	$37
-	dr	rmove
+	dr.w	rmove
 	dc.w	$14
-	dr	rinsert
+	dr.w	rinsert
 	dc.w	$21
-	dr	rsort
+	dr.w	rsort
 
 	dc.w	$11
-	dr	rsaveprog
+	dr.w	rsaveprog
 	dc.w	$19
-	dr	rloadprog
+	dr.w	rloadprog
 	dc.w	$1a
-	dr	rloadprog0
+	dr.w	rloadprog0
 
 	dc.w	$27
 	dr	rbutton6	; prev
@@ -22384,41 +22384,41 @@ tutki_moduuli2
 	cmp.b	#2,ptmix(a5)
 	beq.b	.er
 
-	bsr.w	.ptch		* fast
+	bsr.w	.ptch		; fast
 	beq.w	.rf
 	bra.b	.nom
 
-.er	bsr.w	.ptch		* 
+.er	bsr.w	.ptch		; 
 	beq.w	.ff
 
 .nom
-	cmp.l	#'SCRM',44(a0)		* Screamtracker ]I[
+	cmp.l	#'SCRM',44(a0)		; Screamtracker ]I[
 	beq.w	.f
-	cmp.l	#"OCTA",1080(a0)	* Fasttracker
+	cmp.l	#"OCTA",1080(a0)	; Fasttracker
 	beq.w	.f
 
-	cmp.l	#`Exte`,(a0)		* Fasttracker ][ XM
+	cmp.l	#"Exte",(a0)		; Fasttracker ][ XM
 	bne.b	.kala
-	cmp.l	#`nded`,4(a0)
+	cmp.l	#"nded",4(a0)
 	bne.b	.kala
-	cmp.l	#` Mod`,8(a0)
+	cmp.l	#" Mod",8(a0)
 	bne.b	.kala
-	cmp.l	#`ule:`,12(a0)
+	cmp.l	#"ule:",12(a0)
 	beq.w	.f
 
 .kala	move.l	1080(a0),d0
-	and.l	#$ffffff,d0		* fast
+	and.l	#$ffffff,d0				; fast
 	cmp.l	#"CHN",d0
 	beq.w	.f
-	cmp	#"CH",1082(a0)		* fast
+	cmp	#"CH",1082(a0)		; fast
 	beq.w	.f
 	move.l	(a0),d0
 	lsr.l	#8,d0
-	cmp.l	#'MTM',d0		* multi
+	cmp.l	#'MTM',d0		; multi
 	beq.w	.f
 	move.l	1080(a0),d0
 	lsr.l	#8,d0
-	cmp.l	#"TDZ",d0		* take
+	cmp.l	#"TDZ",d0		; take
 	beq.w	.f
 
 
@@ -22428,24 +22428,24 @@ tutki_moduuli2
 	cmp.l	#"tfmx",(a0)
 	beq.w	.f
 
-	cmp.l	#'OKTA',(a0)		* Oktalyzer
+	cmp.l	#'OKTA',(a0)		; Oktalyzer
 	bne.b	.m
 	cmp.l	#'SONG',4(a0)
 	bne.b	.m
-	cmp.l	#$00010001,$10(a0)	* Onko 8 kanavaa?
+	cmp.l	#$00010001,$10(a0)	; Onko 8 kanavaa?
 	bne.b	.m
 	cmp.l	#$00010001,$10+4(a0)
 	beq.b	.f
 .m
-	cmp.l	#'PSID',(a0)		* PSID-tiedosto
+	cmp.l	#'PSID',(a0)		; PSID-tiedosto
 	beq.b	.f
 
-	move.l	(a0),d0			* THX
+	move.l	(a0),d0			; THX
 	lsr.l	#8,d0
 	cmp.l	#"THX",d0
 	beq.b	.f
 
-	cmp.l	#"MLED",(a0)		* MusicLine Editor?
+	cmp.l	#"MLED",(a0)		; MusicLine Editor?
 	bne.b	.ndd
 	cmp.l	#"MODL",4(a0)	
 	beq.b	.f
@@ -22457,17 +22457,17 @@ tutki_moduuli2
 	lsr.l	#8,d0
 	cmp.l	#'MMD',d0
 	bne.b	.nome
-	btst	#0,20(a0)		* mmdflags, MMD_LOADTOFASTMEM
+	btst	#0,20(a0)		; mmdflags, MMD_LOADTOFASTMEM
 	bne.b	.f
 
-;	move.l	8(a0),a1		* MMD0song *song
-;	add.l	a0,a1			* reloc
-;	btst	#7,768(a1)		* flags2; miksaus?
+;	move.l	8(a0),a1		; MMD0song *song
+;	add.l	a0,a1			; reloc
+;	btst	#7,768(a1)		; flags2; miksaus?
 ;	bne.b	.f
 
 
 .nome
-	cmp.l	#'DIGI',(a0)		* digi booster
+	cmp.l	#'DIGI',(a0)		; digi booster
 	bne.b	.nd
 	cmp.l	#' Boo',4(a0)
 	bne.b	.nd
@@ -26877,30 +26877,30 @@ tfmx_C000338	moveq	#10,D0
 
 tfmx_L0000F0	dcb.l	$2,0
 	dc.b	2,1			* nt_interrupt, prioriteetti 1
-	dc.l	TFMX_Pro.MSG0
+	dc.l	TFMX_Pro_MSG0
 	dcb.w	$2,0
 tfmxi1	dc.l	0
 tfmx_L000106	dcb.l	$2,0
 	dc.b	2,100
-	dc.l	TFMX_Pro.MSG0
+	dc.l	TFMX_Pro_MSG0
 	dcb.w	$2,0
 tfmxi2	dc.l	0
 tfmx_L00011C	dcb.l	$2,0
 	dc.b	2,100
-	dc.l	TFMX_Pro.MSG0
+	dc.l	TFMX_Pro_MSG0
 	dcb.w	$2,0
 tfmxi3	dc.l	0
 tfmx_L000132	dcb.l	$2,0
 	dc.b	2,100
-	dc.l	TFMX_Pro.MSG0
+	dc.l	TFMX_Pro_MSG0
 	dcb.w	$2,0
 tfmxi4	dc.l	0
 tfmx_L000148	dcb.l	$2,0
 	dc.b	2,100
-	dc.l	TFMX_Pro.MSG0
+	dc.l	TFMX_Pro_MSG0
 	dcb.w	$2,0
 tfmxi5	dc.l	0
-TFMX_Pro.MSG0 dc.b "TFMX",0
+TFMX_Pro_MSG0 dc.b "TFMX",0
 
 	even
 
@@ -27200,7 +27200,7 @@ p_med	jmp	.medinit(pc)
 * a0 = 63 samplestructuree, 8 bytee kukin
 	moveq	#63-1,d1
 	moveq	#0,d7
-.chmi	tst.b	4(a0)		* midich, 0 jos ei midi
+.chmi	tst.b	4(a0)		; midich, 0 jos ei midi
 	beq.b	.jep
 	addq	#1,d7
 ;	jsr	flash
@@ -27258,13 +27258,13 @@ p_med	jmp	.medinit(pc)
 	move.l	d0,a6
 
 	tst	d7
-	beq.b	.nomidi		* onko midisampleja?
+	beq.b	.nomidi		; onko midisampleja?
 
-	moveq	#1,d0		* saadaanko seriali?
+	moveq	#1,d0		; saadaanko seriali?
 	bsr.b	.getplayer
 	tst.l	d0
 	beq.b	.gotserial
-.nomidi	moveq	#0,d0		* jos ei, kokeillaan ilman.
+.nomidi	moveq	#0,d0		; jos ei, kokeillaan ilman.
 	bsr.b	.getplayer
 	tst.l	d0
 	bne.b	.error2
@@ -28124,7 +28124,7 @@ p_digiboosterpro
 	jmp	8+$20(a0)
 
 .ahiupdate
-	rts	* omat pannaukset ja autoboostit
+	rts	; omat pannaukset ja autoboostit
 	
 ;	move.l	digiboosterproroutines(a5),a0
 ;	jmp	12+$20(a0)
@@ -28736,7 +28736,7 @@ p_multi	jmp	.s3init(pc)
 	move.l	ps3mroutines(a5),a6
 	jsr	init1j(a6)
 
-	pushpea	CHECKSTART,d0		* tarkistussummaa varten
+	pushpea	CHECKSTART,d0		; tarkistussummaa varten
 	lea	ps3m_buff1(a5),a0
 	lea	ps3m_buff2(a5),a1
 	lea	ps3m_mixingperiod(a5),a2
@@ -28749,38 +28749,38 @@ p_multi	jmp	.s3init(pc)
 
 
 	move.l	mixirate(a5),d0	
-	move.b	s3mmode3(a5),d1		* volumeboost
+	move.b	s3mmode3(a5),d1		; volumeboost
 	moveq	#0,d3
-	move.b	s3mmode2(a5),d3		* mono/stereo/surround
-	move.b	s3mmode1(a5),d4		* priority/killer
+	move.b	s3mmode2(a5),d3		; mono/stereo/surround
+	move.b	s3mmode1(a5),d4		; priority/killer
 
-	move.l	moduleaddress(a5),d2	* moduuli
+	move.l	moduleaddress(a5),d2	; moduuli
 
-	move.b	ps3mb(a5),d5		* mixing buffer size
-	lea	playing(a5),a0		* stop/cont-lippu
-	lea	inforivit_killerps3m,a1	* killer ps3m viesti
-	lea	mainvolume(a5),a2	* voluumi
+	move.b	ps3mb(a5),d5			; mixing buffer size
+	lea	playing(a5),a0				; stop/cont-lippu
+	lea	inforivit_killerps3m,a1		; killer ps3m viesti
+	lea	mainvolume(a5),a2			; voluumi
 	move.l	_DosBase(a5),a3
-	lea	songover(a5),a4		* kappale loppuu-lippu
+	lea	songover(a5),a4			; kappale loppuu-lippu
 	move.l	_GFXBase(a5),a6
-	pushpea	pos_nykyinen(a5),d6	* songpos -osoite
-	pushpea	.adjustroutine(pc),d7	* asetusten säätörutiini
+	pushpea	pos_nykyinen(a5),d6	; songpos -osoite
+	pushpea	.adjustroutine(pc),d7	; asetusten säätörutiini
 	move.l	ps3mroutines(a5),a5
-	pea	.updateps3m3(pc)	* updaterutiini, surroundin stereo
+	pea	.updateps3m3(pc)			; updaterutiini, surroundin stereo
 	jsr	init0j(a5)
 	addq	#4,sp
 
 	popm	d1-a6
-	cmp	#333,d0		* killermoden koodi
+	cmp	#333,d0					; killermoden koodi
 	bne.b	.e
-	addq	#4,sp		* killer: hypätään play-aliohjelman 'ohi'
+	addq	#4,sp				; killer: hypätään play-aliohjelman 'ohi'
 .e	rts
 
 
 .updateps3m3
 	pushm	d1/a5
 	lea	var_b,a5
-	cmp.b	#1,s3mmode2(a5)		* onko surround?
+	cmp.b	#1,s3mmode2(a5)		; onko surround?
 	bne.b	.nd
 	moveq	#64,d1
 	sub.b	stereofactor(a5),d1
@@ -28819,15 +28819,15 @@ p_multi	jmp	.s3init(pc)
 .adjustroutine
 	pushm	d2/d6-a6
 	lea	var_b,a5
-	moveq	#0,d6			* -1: vaikuttaa, 0: ei vaikuta
-	cmp	#1,ps3minitcount	* asetustiedosto vaikuttaa vain
-	bne.w	.xei			* ensimmäiseen inittiin latauksen
-					* jälkeen
+	moveq	#0,d6			; -1: vaikuttaa, 0: ei vaikuta
+	cmp	#1,ps3minitcount		; asetustiedosto vaikuttaa vain
+	bne.w	.xei				; ensimmäiseen inittiin latauksen
+							; jälkeen
 
-	tst.b	ps3msettings(a5)	* käytetäänkö vai ei?
+	tst.b	ps3msettings(a5)		; käytetäänkö vai ei?
 	beq.w	.xei
 
-	move	d0,d7			* kanavien määrä
+	move	d0,d7			; kanavien määrä
 
 	move.l	ps3msettingsfile(a5),d0
 	beq.w	.xei
@@ -28836,16 +28836,16 @@ p_multi	jmp	.s3init(pc)
 
 	moveq	#-1,d6
 
-	lea	32*13(a0),a1		* file asetukset täällä
+	lea	32*13(a0),a1			; file asetukset täällä
 
-	move	d7,d0			* ensin asetukset kanavataulukosta
+	move	d7,d0			; ensin asetukset kanavataulukosta
 	subq	#1,d0
 	mulu	#13,d0
 	add	d0,a0
 	addq	#3,a0
 	bsr.w	.gets
 
-	move.l	a1,a0			* tähtirivien ohi
+	move.l	a1,a0			; tähtirivien ohi
 	bsr.w	.tah
 
 	move.l	solename(a5),a1
@@ -28857,7 +28857,7 @@ p_multi	jmp	.s3init(pc)
 
 .filel
 	addq	#1,a0
-	cmp.b	#'ø',(a0)		* loppumerkki?
+	cmp.b	#'ø',(a0)			; loppumerkki?
 	beq.b	.golly
 	move	d2,d5
 	subq	#1,d5
@@ -28896,11 +28896,11 @@ p_multi	jmp	.s3init(pc)
 	popm	all
 
 
-	move.l	mixirate(a5),d0		* mixingrate
-	move.b	s3mmode3(a5),d1		* volumeboost
+	move.l	mixirate(a5),d0		; mixingrate
+	move.b	s3mmode3(a5),d1		; volumeboost
 	moveq	#0,d3
-	move.b	s3mmode2(a5),d3		* mono/stereo/surround/jne..
-	move.b	s3mmode1(a5),d4		* pri/killer
+	move.b	s3mmode2(a5),d3		; mono/stereo/surround/jne..
+	move.b	s3mmode1(a5),d4		; pri/killer
 
 .xei	tst.l	d6
 	popm	d2/d6-a6
@@ -29060,16 +29060,16 @@ ps3minitcount	dc.w	0
 
 p_sample
 	jmp	.init(pc)
-	dc.l	$4e754e75		* CIA
-	dc.l	$4e754e75		* VB
-	jmp	.end(pc)		* end
-	jmp	.dostop(pc)		* Stop
-	jmp	.docont(pc)		* Cont
-	jmp	.vol(pc)		* volume
-	dc.l	$4e754e75		* Song
-	dc.l	$4e754e75		* Eteen
-	dc.l	$4e754e75		* Taakse
-	jmp	.ahiup(pc)		* AHI Update
+	dc.l	$4e754e75		; CIA
+	dc.l	$4e754e75		; VB
+	jmp	.end(pc)			; end
+	jmp	.dostop(pc)		; Stop
+	jmp	.docont(pc)		; Cont
+	jmp	.vol(pc)			; volume
+	dc.l	$4e754e75		; Song
+	dc.l	$4e754e75		; Eteen
+	dc.l	$4e754e75		; Taakse
+	jmp	.ahiup(pc)		; AHI Update
 	dc.w	pf_volume!pf_scope!pf_stop!pf_cont!pf_end!pf_ahi
 .name	dc.b	"                        ",0
  even
@@ -29176,7 +29176,7 @@ p_sample
 * Playereitä
 
 
-		incdir
+		incdir ""
 kplayer		incbin	kpl
 		;incdir	asm:player/pl/
 
@@ -29201,10 +29201,10 @@ xfdname		dc.b	"xfdmaster.library",0
 * Fontti, ikkuna ja gadgetit
 *******
 text_attr
-	dc.l	topaz		* ta_Name
-	dc.w	8		* ta_YSize
-	dc.b	0		* ta_Style
-	dc.b	0		* ta_Flags
+	dc.l	topaz	; ta_Name
+	dc.w	8		; ta_YSize
+	dc.b	0		; ta_Style
+	dc.b	0		; ta_Flags
 
 topaz	dc.b	"topaz.font",0
  even
@@ -29216,18 +29216,18 @@ topaz	dc.b	"topaz.font",0
 winstruc
 	dc.w	360	;vas.yläk.x-koord.
 	dc.w	23	;---""--- y-koord
-wsizex	dc.w	0	* sizex
-wsizey	dc.w	0	* 181+25 ja 11
-colors	dc.b	2,1	;palkin värit
+wsizex	dc.w	0				; sizex
+wsizey	dc.w	0				; 181+25 ja 11
+colors	dc.b	2,1				; palkin värit
 idcmpmw	dc.l	idcmpflags
 	dc.l	wflags
- 	dc.l	0		* gadgets
+ 	dc.l	0					; gadgets
 	dc.l	0	
 	dc.l	windowname1
-	dc.l	0	;screen struc
-	dc.l	0	;bitmap struc
-	dc.w	0,0		* min x,y
-	dc.w	1000,1000	* max x,y
+	dc.l	0					; screen struc
+	dc.l	0					; bitmap struc
+	dc.w	0,0					; min x,y
+	dc.w	1000,1000			; max x,y
 	dc.w	WBENCHSCREEN
 	dc.l	.t
 
@@ -29242,7 +29242,7 @@ idcmpmw	dc.l	idcmpflags
 
 
 gadgets
-	incdir
+	incdir	""
 ;	include	gadgets/gadgets16_new2.s
 	include	gadgets/gadgets16_new3.s
 
@@ -29281,7 +29281,7 @@ winstruc3
 	dc.w	259
 	dc.w	157
 quadsiz	dc.w	340,85
-	dc.b	2,1	;palkin värit
+	dc.b	2,1				; palkin värit
 	dc.l	idcmpflags3
 	dc.l	wflags3
 	dc.l	0
@@ -29289,8 +29289,8 @@ quadsiz	dc.w	340,85
 quadtitl dc.l	.t
 	dc.l	0
 	dc.l	0	
-	dc.w	0,0	* min x,y
-	dc.w	1000,1000 * max x,y
+	dc.w	0,0				; min x,y
+	dc.w	1000,1000 		; max x,y
 	dc.w	WBENCHSCREEN
 	dc.l	enw_tags
 
@@ -29392,25 +29392,27 @@ enw_tags
 *** file ja infoslider imagestruktuurit
 
 
-slimage		dc.w	0	* leftedge
-		dc.w	0	* topedge
-		dc.w	16	* width
-slimheight	dc.w	8	* heigh
-		dc.w	2	* depth
-		dc.l	slim	* data
-		dc.b	%11	* planepick
-		dc.b	0	* planeon/onff
-		dc.l	0	* nextimage
+slimage		dc.w	0		; leftedge
+			dc.w	0		; topedge
+			dc.w	16		; width
 
-slimage2	dc.w	0	* leftedge
-		dc.w	0	* topedge
-		dc.w	16	* width
-slim2height	dc.w	8	* heigh
-		dc.w	2	* depth
-		dc.l	slim2	* data
-		dc.b	%11	* planepick
-		dc.b	0	* planeon/onff
-		dc.l	0	* nextimage
+slimheight	dc.w	8		; heigh
+			dc.w	2		; depth
+			dc.l	slim		; data
+			dc.b	%11		; planepick
+			dc.b	0		; planeon/onff
+			dc.l	0		; nextimage
+
+slimage2		dc.w	0		; leftedge
+			dc.w	0		; topedge
+			dc.w	16		; width
+
+slim2height	dc.w	8		; heigh
+			dc.w	2		; depth
+			dc.l	slim2	; data
+			dc.b	%11		; planepick
+			dc.b	0		; planeon/onff
+			dc.l	0		; nextimage
 
 
 
