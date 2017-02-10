@@ -24092,13 +24092,25 @@ convert_oldst
 
 	move.b	#$7f,951(a3)
 
-	lea	20(a3),a0		* repeat pointer jaetaan kahdella
+	lea	20(a3),a0			; repeat pointer jaetaan kahdella
 	moveq	#$f-1,d0
-.f	lsr	#1,26(a0)
-	lea	30(a0),a0
+.f	
+;	lsr		#1,26(a0)	; org code
+
+; --> modified code, work around for not supported indirect lsr on vasm
+
+	move.l	d1,a1		; a1 will be overwitten, so its safe to use, don't know about d1
+	move.l 	26(a0),d1		
+	lsr		#1,d1
+	move.l	d1,26(a0)
+	move.l	a1,d1		; restore d1
+
+; <-- org code 
+	lea		30(a0),a0	
+
 	dbf	d0,.f
 
-	move.l	moduleaddress(a5),a1
+	move.l	moduleaddress(a5),a1	// a1 becomes overwitten here
 	move.l	modulelength(a5),d0
 	lore	Exec,FreeMem
 
@@ -24165,7 +24177,7 @@ loadplayergroup
 	move.l	d0,d4
 	beq.b	.error
 
-	move.l	d4,d1		* selvitetään filen pituus
+	move.l	d4,d1		; selvitetään filen pituus
 	moveq	#0,d2	
 	moveq	#1,d3
 	lob	Seek
@@ -24175,7 +24187,7 @@ loadplayergroup
 	lob	Seek
 	move.l	d0,d5
 
-	move.l	d4,d1		* alkuun
+	move.l	d4,d1		; alkuun
 	moveq	#0,d2
 	moveq	#-1,d3
 	lob	Seek
@@ -24233,7 +24245,7 @@ loadreplayer
 	pushm	d1-d6/a0/a2-a6
 	move.l	d6,a4				* muistin tyyppi!
 
-	move.l	externalplayers(a5),a0		* grouppi poies
+	move.l	externalplayers(a5),a0	* grouppi poies
 	jsr	freemem
 	clr.l	externalplayers(a5)
 
@@ -24281,9 +24293,9 @@ loadreplayer
 	
 	lsl	#3,d0
 
-	movem.l	(a0,d0),d2/d6	* player offset, length
+	movem.l	(a0,d0),d2/d6	; player offset, length
 	tst.l	d2
-	beq.b	.error		* Onko koko playeriä filessä?
+	beq.b	.error		; Onko koko playeriä filessä?
 
 * d3k0dez!
 	sub.l	#$a370,d2
