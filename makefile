@@ -6,7 +6,7 @@ hippoplayer.exe: puu016.s objects/puu016.o
 		c/vlink  -bamigahunk -o hippoplayer.exe -s objects/puu016.o 
 
 objects/puu016.o: puu016.s
-		c/vasmm68k_mot -Iinclude -Fhunk -o objects/puu016.o puu016.s *> t:error.log
+		c/os4_cross_compiler_vasmm68k_mot -Iinclude -Fhunk -o objects/puu016.o puu016.s *> t:error.log
 #		c/vasmm68k_mot -Iwork:Amiga_Dev_CD_v1.1/NDK_3.1/INCLUDES/INCLUDE_I/ -Fhunk -o objects/puu016.o puu016.s
 
 keyfile.exe: keyfile0.s objects/keyfile0.o 
@@ -17,3 +17,4 @@ objects/keyfile0.o: keyfile0.s
 
 comment_log_file:
 		grep -n "\*[[:space:]]" puu016.s > comment.log
+
