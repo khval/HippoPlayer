@@ -24100,9 +24100,9 @@ convert_oldst
 ; --> modified code, work around for not supported indirect lsr on vasm
 
 	move.l	d1,a1		; a1 will be overwitten, so its safe to use, don't know about d1
-	move.l 	26(a0),d1		
+	move.w 	26(a0),d1		
 	lsr		#1,d1
-	move.l	d1,26(a0)
+	move.w	d1,26(a0)
 	move.l	a1,d1		; restore d1
 
 ; <-- org code 
@@ -24110,7 +24110,7 @@ convert_oldst
 
 	dbf	d0,.f
 
-	move.l	moduleaddress(a5),a1	// a1 becomes overwitten here
+	move.l	moduleaddress(a5),a1	; a1 becomes overwitten here
 	move.l	modulelength(a5),d0
 	lore	Exec,FreeMem
 
