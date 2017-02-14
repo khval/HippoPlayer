@@ -27,13 +27,13 @@ BETA	= 0	; 0: ei beta, 1: public beta, 2: private beta
 
 asm	= 0	; 1: AsmOnesta ajettava versio
 
-zoom	= 0	; 1: zoomaava hippo
-fprog	= 0 	; 1: file add progress indicator, ei oikein toimi (kaataa)
+zoom	= 0	; 1: zoom viewfinder hippo
+fprog	= 0 	; 1: add file progress indicator, does not really work (knock down)
 floadpr = 1	; 1: unpacked file load progress indicator
-PILA	= 0	; 1: pikku pila niille joilla on wRECin key muttei 060:aa
-TARK	= 0	; 1: tekstien tarkistus
-EFEKTI  = 0	; 1: efekti volumesliderill‰
-ANNOY	= 0     ; 1: Unregistered version tekstej‰ ymp‰riins‰
+PILA	= 0	; 1: small joke for those who have wRECin key but not the 060 aa
+TARK	= 0	; 1: checking of texts
+EFEKTI  = 0	; 1: efekti volume sliderill‰
+ANNOY	= 0     ; 1: Unregistered version of the text around
 
  ifne TARK
  ifeq asm
@@ -43,7 +43,7 @@ ANNOY	= 0     ; 1: Unregistered version tekstej‰ ymp‰riins‰
  endc
  
 
-WINX	= 2	; X ja Y lis‰ykset p‰‰ikkunan grafiikkaan
+WINX	= 2	; X and Y additions to the main window graphics
 WINY	= 3
 
 
@@ -76,7 +76,7 @@ tword	macro
 	ror	#8,\2
 	endm
 
-***** Tarkistaa rekisterˆitymiseen liittyv‰t tekstit
+***** Check the texts relating to registration
 
 
 check	macro
@@ -604,9 +604,9 @@ medratepot_new	rs	1
 alarmpot_new	rs.l	1
 alarm_new	rs	1
 vbtimer_new	rs.b	1
-scopechanged	rs.b	1		; scopea muutettu
-contonerr_laskuri rs.b 1		; kuinka monta virheellist‰ lataus
-cybercalibration_new rs.b 1		; yrityst‰
+scopechanged	rs.b	1		; scope to set changed
+contonerr_laskuri rs.b 1		; how many false charge
+cybercalibration_new rs.b 1		; companies
 calibrationfile_new rs.b 100
 newcalibrationfile rs.b	1
 
@@ -617,16 +617,16 @@ prefs_exit	rs.b	1		; Prefs exit-flaggi
 slider4oldheight rs	1
 slider1old	rs	1
 slider4old	rs	1
-mainvolume	rs	1		; p‰‰-‰‰nenvoimakkuus
-mixirate		rs.l	1		; miksaustaajuus S3M:‰lle
+mainvolume	rs	1		; master volume
+mixirate		rs.l	1		; mixing frequency S3M: Less than
 textchecksum	rs	1
-priority		rs.l	1		; ohjelman prioriteetti
+priority		rs.l	1		; program priority
 tfmxmixingrate	rs	1	; rate 1-22
-s3mmode1	rs.b	1		; prioriteetti / killeri
+s3mmode1	rs.b	1		; Priority / killer
 s3mmode2	rs.b	1		; surround,stereo,mono,real surround,14-bit
 s3mmode3	rs.b	1		; Volume boost
 stereofactor	rs.b	1		; stereofactor
-xfd			rs.b	1		; ~0: k‰ytet‰‰n xfdmaster.libb°‰
+xfd			rs.b	1		; ~0: used xfdmaster.libb°‰
 ps3mb		rs.b	1
 timeoutmode	rs.b	1
 quadmode	rs.b	1		; scopemoodi
@@ -636,7 +636,7 @@ modulefilterstate rs.b	1	; ..
 ptmix		rs.b	1		; 0: normi ptreplay, 1:mixireplay
 xpkid		rs.b	1		; 0: ei xpktunnistusta, 1:joo
 fade			rs.b	1		; 0: ei feidausta
-boxsize		rs	1		; montako nime‰ mahtuu fileboksiin
+boxsize		rs	1		; how many came in the name fits file
 boxsize_new	rs	1
 boxsizepot_new	rs	1
 boxy			rs	1		; 8-nimisen lootaan y-kokomuutos
@@ -1387,11 +1387,11 @@ parmExit:
 
 *********************************************************************************
 *
-; P‰‰ohjelma
+; The main program
 
 	section	refridgerator,code
 
-; Segmentit uusille prosesseille. 4:ll‰ jaollisissa osoitteissa.
+; Segments for new processes. With 4 divisible addresses.
 
 main0	jmp	main(pc)
 
@@ -1411,15 +1411,14 @@ info_segment
 ;	jmp	info_code(pc)
 	jmp	info_code
 
-_l1416	dc.b	0 ; pad
+	dc.b	0 ; pad
 
-
-_l1419	dc.l	16
+	dc.l	16
 quad_segment
-_l1421	dc.l	0
+	dc.l	0
 	jmp	quad_code
 
-;	dc.w	0	; pad
+	dc.w	0	; pad
 
 
 
@@ -1853,14 +1852,15 @@ main
 	lea	sivu6-sivu5(a1),a1
 	bsr.b	.num
 
-	bra.b	.eer2
+	bra.w	.eer2
+
 
 
 .num
 * Numeroidaan gadgetit
 	move.l	a1,a0
 
-.er	bsr.b	.gadu
+.er	bsr.w	.gadu
 	move.l	(a0),d1
 	beq.b	.eer
 	move.l	d1,a0
@@ -1868,6 +1868,100 @@ main
 	bra.b	.er
 .eer	rts
 
+.open_timer_device
+	movem	D0-D7/A0-A6,-(SP)
+
+	jmp		_LVOCreateMsgPort(a6)
+	lea		timer_port,a0
+	move.l	d0,(a0)
+
+	; Is ok?
+	cmpi.w	#0,D0
+	BEQ		.open_timer_device_failed
+
+	; ***** Create Timer Request *****
+	move.l	D0,A0
+	move.l	#20,D0	;	Timer Request Size
+	jmp	_LVOCreateIORequest(a6)
+	lea		timer_request,A1
+	move.l	D0,(A1)
+
+	; Is ok?
+	cmpi.w	#0,d0
+	BEQ		.open_timer_device_failed
+
+	; ***** Open Device *****
+	lea		timer_device_name,A0
+	move.l	#0,D0					; unit
+	lea		timer_request,A1
+	move.l	(A1),A1
+	move.l	#0,D1					; flags
+	move.l	(a5),a6
+	jmp	_LVOOpenDevice(a6)
+
+.open_timer_device_failed
+	movem	(SP)+,D0-D7/A0-A6
+	rts
+
+.close_timer_device
+	movem	D0-D7/A0-A6,-(SP)
+
+	LEA 		timer_device_set,A2
+	move.w	(A2),D0
+	
+	cmpi.w	#0,d0
+	BEQ		.safe_to_close_device
+
+	lea		timer_request,A0
+	move.l	(A0),D0
+
+	cmpi.w	#0,d0
+	BEQ		.no_timer_request
+
+	; AbortIO
+	move.l	d0,a1
+	move.l	(a5),a6
+	jmp	_LVOWaitIO(a6)
+
+	; WaitIO
+	lea		timer_request,A1
+	move.l	(A1),A1
+	move.l	(a5),a6
+	jmp	_LVOWaitIO(a6)
+
+.safe_to_close_device
+
+	; CloseDevice
+	lea		timer_request,A0
+	move.l	(A0),D0
+
+	cmpi.w	#0,d0
+	BEQ		.no_timer_request
+	
+	move.l  D0,A0
+	move.l	(a5),a6
+	jmp	_LVOCloseDevice(a6)
+
+	; DeleteIORequest
+	lea		timer_request,A0
+	move.l	(A0),A0
+	jmp	_LVODeleteIORequest(a6)
+
+.no_timer_request
+
+	; DeleteIMsgPort
+	lea		timer_request,A0
+	move.l	(A0),d0
+
+	cmpi.w	#0,d0
+	BEQ		.no_timer_msgport
+
+	move.l	D0,A0
+	jmp	_LVODeleteMsgPort(a6)
+
+.no_timer_msgport
+	movem	(SP)+,D0-D7/A0-A6
+	rts
 
 .gadu	move	d0,gg_GadgetID(a0)
 	tst.b	uusikick(a5)
@@ -12184,7 +12278,7 @@ pcyber
 ***** cyber calibration file name
 rcybername
 	lea	calibrationfile_new(a5),a0
-	move.l	a0,a1			; mihin hakemistoon menn‰‰n
+	move.l	a0,a1			; let's go to the directory
 	lea	.t(pc),a2
 	bsr.w	pgetfile
 	st	newcalibrationfile(a5)
@@ -12684,9 +12778,9 @@ purealarm
  even
 
 
-print3b	pushm	all			; Sit‰varten ett‰ windowtop/left
-	move.l	rastport2(a5),a4	; arvoja ei lis‰tt‰isi kun
-	bra.w	uup				; teksti on jo suhteessa gadgettiin
+print3b	pushm	all			; For that it windowtop / left
+	move.l	rastport2(a5),a4	; not to increase the values of the
+	bra.w	uup				; Text has been added in relation to the gadget
 
 
 ******* FKeys
@@ -12722,8 +12816,8 @@ rfkeys
 	lea	fkeys_new(a5),a0
 	mulu	#120,d0
 	add.l	d0,a0
-	move.l	a0,a1		; jos ei ole ennest‰‰n tiedostoa,
-	tst.b	(a1)				; otetaan hakemistoksi oletusmusahakemisto
+	move.l	a0,a1		; if there is no pre-existing file,
+	tst.b	(a1)				; the directory will be the default music directory
 	bne.b	.jep
 	lea	moduledir(a5),a1	
 .jep
@@ -13779,9 +13873,9 @@ listselector
 
 .msgloop3
 	moveq	#0,d0
-	move.b	MP_SIGBIT(a3),d1		; IDCMP signalibitti
+	move.b	MP_SIGBIT(a3),d1		; IDCMP signal bit
 	bset	d1,d0
-	lore	Exec,Wait					; Odotellaan...
+	lore	Exec,Wait					; Let's just wait...
 
 	move.l	a3,a0
 	lob	GetMsg
@@ -17212,7 +17306,7 @@ rbutton10
 	tst	info_prosessi(a5)
 	beq.b	.z
 
-	move.l	infotaz(a5),a0		; jos oli jo aboutti niin suljetaan
+	move.l	infotaz(a5),a0		; if already aboutti then closed
 	cmp.l	#about_t,a0
 	bne.b	.rr
 	bsr.w	sulje_info
@@ -17473,10 +17567,10 @@ init_ciaint
 .c	moveq	#0,d0
 	rts
 
-.hm	clr.b	vbtimeruse(a5)		; k‰ytet‰‰n ciaa
-	tst.b	vbtimer(a5)			; onko vblank k‰ytˆss‰?
+.hm	clr.b	vbtimeruse(a5)		; used ciaa
+	tst.b	vbtimer(a5)			; whether VBlank use?
 	beq.b	.ci
-	st	vbtimeruse(a5)		; k‰ytet‰‰n vblankia
+	st	vbtimeruse(a5)		; used VBlank
 	bra.b	.c
 .ci
 	pushm	d1-a6
@@ -17494,7 +17588,7 @@ init_ciaint
 	move.l	d6,d0
 	lob	AddICRVector
 	tst.l	d0
-	beq.b	.gottimer				; Saatiinko?
+	beq.b	.gottimer				; was?
 
 	lea	(a4),a1
 	moveq	#1,d6				; timer b
@@ -17514,7 +17608,7 @@ init_ciaint
 	move.l	d6,d0
 	lob	AddICRVector
 	tst.l	d0
-	beq.b	.gottimer				; Saatiinko?
+	beq.b	.gottimer				; was?
 
 	lea	(a4),a1
 	moveq	#1,d6				; timer b
@@ -17570,7 +17664,7 @@ rem_ciaint
 	lea	ciaserver(pc),a1
 	lob	RemICRVector
 
-	st	ciasaatu(a5)				; ei keskeytyst‰!
+	st	ciasaatu(a5)				; do not interrupt!
 	popm	all
 	rts
 
@@ -17579,7 +17673,7 @@ rem_ciaint
 intserver
 	dc.l	0,0
 	dc.b	2
-	dc.b	0						; prioriteetti
+	dc.b	0						; priority
 	dc.l	.intname
 	dc.l	var_b					; is_Data
 	dc.l	.vbinterrupt
@@ -17597,7 +17691,7 @@ intserver
 	beq.b	.huh
 ;	beq	.eee
 
-*** Kutsutaan soittorutinin cia-rutiinia jos ajastus on vblankilla
+*** Called the CIA routine if a reservation has been VBlank
 
 	push	a5
 	tst.b	vbtimeruse(a5)
@@ -17607,7 +17701,7 @@ intserver
 	move.l	(sp),a5
 .novb
 
-*** Kutsutaan soittorutinin vb-rutiinia
+*** Called soittorutinin vb-routine
 
 	move.l	playerbase(a5),a0
 	jsr	p_vblankroutine(a0)
@@ -17615,7 +17709,7 @@ intserver
 
 	bsr.w	scopeinterrupt
 
-*** Asetetaan filtteri
+*** Place the filter
 
 	move.b	filterstatus(a5),d0
 	bne.b	.oop
@@ -17636,9 +17730,9 @@ intserver
 	beq.b	.huh
 .umb	clr.b	songover(a5)
 
-* Jos kappale on soinut l‰pi, l‰hetet‰‰n signaali Wait()ille.
+* If the track has been played through, the signal is sent to Wait () for..
 
-	tst	loading(a5)	; ei songenddi‰ jos lataus kesken
+	tst	loading(a5)	; if not songenddi‰ between charging
 	bne.b	.huh
 	move.b	ownsignal1(a5),d1
 	bsr.w	signalit
@@ -17648,13 +17742,13 @@ intserver
 	beq.b	.eee
 
 
-	move	pos_nykyinen(a5),d0	; onko position muuttunut?
+	move	pos_nykyinen(a5),d0	; if the position changed?
 	move	positionmuutos(a5),d1
 	cmp	d1,d0
 	beq.b	.eee
 	move	d0,positionmuutos(a5)
 
-	tst.b	kelattiintaakse(a5)			; taaksep‰inkelauksesta ei vaikutusta
+	tst.b	kelattiintaakse(a5)			; Backward no effect
 	beq.b	.jeh
 	clr.b	kelattiintaakse(a5)
 	bra.b	.pee
@@ -17668,8 +17762,8 @@ intserver
 .eee
 
 
-* Soitto p‰‰ll‰: p‰ivityspyyntˆ joka 10/50 sekuntti
-* Ei soittoa: joka 50/50 sekuntti.
+* Call site: Update Request a 10/50 seconds for
+* Not playing: every 50/50 seconds .
 
 	moveq	#0,d0
 	move	vertfreq(a5),d0
@@ -17684,7 +17778,7 @@ intserver
 ;	beq.b	.npl
 ;	moveq	#10,d0
 ;.npl
-	addq	#1,ticktack(a5)		; signaaloidaan p‰ivityspyyntˆ
+	addq	#1,ticktack(a5)		; signaaloidaan update request
 	cmp	ticktack(a5),d0
 	bhi.b	.nope
 	clr	ticktack(a5)
@@ -17698,7 +17792,7 @@ intserver
 	tst.b	vbtimeruse(a5)
 	bne.b	.eir
 
-	move.l	playerbase(a5),a0	; Kelaus CIA-ajastimella
+	move.l	playerbase(a5),a0	; Fast CIA-timer
 	move	p_liput(a0),d0
 	btst	#pb_ciakelaus,d0
 	bne.b	.joog
@@ -17723,7 +17817,7 @@ intserver
 
 .joog
 	move	timerhi(a5),d0
-	tst.b	kelausnappi(a5)		; onko painettu kelausnappia?
+	tst.b	kelausnappi(a5)		; whether printed kelausnappia?
 	beq.b	.kel
 	move.b	kelausvauhti(a5),d1
 	lsr	d1,d0
@@ -17741,7 +17835,7 @@ intserver
 
 
 
-*** Sys‰t‰‰n kamaa porttiin
+*** Brushed stuff port
 	move.b	mainvolume+1(a5),hippoport+hip_mainvolume(a5)
 	move.b	playertype+1(a5),hippoport+hip_playertype(a5)
 
@@ -17775,7 +17869,7 @@ intserver
 
 
 
-* d1 = p‰‰taskille l‰hetett‰v‰ signaali
+* d1 = the signal sent to the p‰‰taskille
 signalit
 	move.l	owntask+var_b,a1
 	moveq	#0,d0
@@ -17795,7 +17889,7 @@ dummyserver
 ciaserver
 	dc.l	0,0
 	dc.b	2
-	dc.b	0			; prioriteetti
+	dc.b	0			; priority
 	dc.l	intname2
 	dc.l	softserver	; is_Data
 	dc.l	ciainterrupt
@@ -17803,15 +17897,15 @@ ciaserver
 intname2 dc.b	"HiP-CIA",0
  even
 
-;ciainterrupt			 ; Potkaistaan SOFTINT liikkeelle.
+;ciainterrupt			 ; Kicked SOFTINT movement.
 ;	lob	Cause
 ;dummyr	moveq	#0,d0
 ;	rts
 
 
-* cdtv-yhteensopiva
+* CDTV-compatible
 
-ciainterrupt			 ; Potkaistaan SOFTINT liikkeelle.
+ciainterrupt			 ; Kicked SOFTINT movement.
 	push	a6
 ;	move.l	4.w,a6
 	move.l	exeksi(pc),a6
@@ -17826,7 +17920,7 @@ exeksi	dc.l	0
 softserver
 	dc.l	0,0
 	dc.b	2
-	dc.b	0			; prioriteetti
+	dc.b	0			; priority
 	dc.l	0
 	dc.l	var_b		; is_Data
 	dc.l	softint
@@ -17836,9 +17930,9 @@ softint
 	beq.b	.huh
 	pushm	d2-d7/a0/a2-a4/a6
 	move.l	a1,a5
-	move.l	playerbase(a5),a0	; Kutsutaan CIA soittorutiinia
-							; jos se on ei-AHI rutiini tai
-							; AHI ei ole p‰‰ll‰
+	move.l	playerbase(a5),a0	; Called the CIA calls a routine
+							; if it is non-routine or AHI
+							; AHI is not on
 	tst.b	ahi_use_nyt(a5)
 	beq.b	.eiahi
 	
@@ -18522,7 +18616,7 @@ quad_code
 	lore	Exec,FindTask
 	move.l	d0,quad_task(a5)
 
-	addq	#1,quad_prosessi(a5)	; Lippu: prosessi p‰‰ll‰
+	addq	#1,quad_prosessi(a5)	; Ticket: the process of site
 
 	lea	ch1(a5),a0
 	lea	4*ns_size(a0),a1
@@ -18565,7 +18659,7 @@ quad_code
 
 * Quadrascope
 .1	moveq	#0,d7
-.11	move.l	#64*256*2,d0		; volumetaulukko
+.11	move.l	#64*256*2,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,mtab(a5)
@@ -18585,22 +18679,22 @@ quad_code
 
 
 .3	moveq	#0,d7
-.33	move.l	#64*256*2,d0		; volumetaulukko
+.33	move.l	#64*256*2,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab
-.wo	move.l	#512,d0			; palkkitaulu
+.wo	move.l	#512,d0			; flat bar
 	move.l	#MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,wotta(a5)
 	beq.w	.memer
-	bsr.w	mwotta			; tehd‰‰n palkkitaulu
+	bsr.w	mwotta			; made flat bar
 	bra.w	.cont
 
 
-.4	move.l	#64*256*2,d0		; volumetaulukko
+.4	move.l	#64*256*2,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,mtab(a5)
@@ -18608,7 +18702,7 @@ quad_code
 	bsr.w	voltab2
 	bra.b	.wo
 
-.5	move.l	#64*256,d0		; volumetaulukko
+.5	move.l	#64*256,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,mtab(a5)
@@ -18632,7 +18726,7 @@ quad_code
 .r	rts
 
 
-.6	move.l	#64*256,d0		; volumetaulukko
+.6	move.l	#64*256,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,mtab(a5)
@@ -18663,13 +18757,13 @@ quad_code
 	
 
 
-* Piirtoalueet
+* drawing Boards
 	move.l	#320/8*72*2,d0
 	move.l	#MEMF_CHIP!MEMF_CLEAR,d1
 	bsr.w	getmem
 	beq.b	.me
 	move.l	d0,buffer0(a5)
-	add.l	#320/8*2,d0			; yl‰‰lle 2 vararivi‰
+	add.l	#320/8*2,d0			; yl‰‰lle 2 spare lines
 	move.l	d0,buffer1(a5)
 	add.l	#320/8*70,d0
 	move.l	d0,buffer2(a5)		; alaalle 4 
@@ -18681,20 +18775,20 @@ quad_code
 	lea	winstruc3,a0
 	move.l	quadpos(a5),(a0)
 
-	move	wbleveys(a5),d0	; WB:n leveys
-	move	(a0),d1			; Ikkunan x-paikka
-	add	4(a0),d1				; Ikkunan oikea laita
+	move	wbleveys(a5),d0	; WB width
+	move	(a0),d1			; Window x-place
+	add	4(a0),d1				; Right side of the window
 	cmp	d0,d1
 	bls.b	.ok1
-	sub	4(a0),d0				; Jos ei mahdu ruudulle, laitetaan
-	move	d0,(a0)			; mahdollisimman oikealle
-.ok1	move	wbkorkeus(a5),d0	; WB:n korkeus
-	move	2(a0),d1			; Ikkunan y-paikka
-	add	6(a0),d1				; Ikkunan oikea laita
+	sub	4(a0),d0				; If not fit on the screen, the device
+	move	d0,(a0)			; as the right
+.ok1	move	wbkorkeus(a5),d0	; WB's height
+	move	2(a0),d1			; Window y position
+	add	6(a0),d1				; Right side of the window
 	cmp	d0,d1
 	bls.b	.ok2
-	sub	6(a0),d0		; Jos ei mahdu ruudulle, laitetaan
-	move	d0,2(a0)	; mahdollisimman alas
+	sub	6(a0),d0		; If not fit on the screen, the device
+	move	d0,2(a0)	; as low as possible
 .ok2
 
 	lob	OpenWindow
@@ -18720,7 +18814,7 @@ quad_code
 	move.l	pen_1(a5),d0
 	lob	SetAPen
 
-	tst.b	uusikick(a5)		; uusi kick?
+	tst.b	uusikick(a5)		; new kick?
 	beq.b	.vanaha
 
 	move.l	rastport3(a5),a2
@@ -18745,7 +18839,7 @@ quad_code
 .vanaha
 
 
-*** Initialisoidaan oma bitmappi
+*** Initial Driving your bitmap
 
 	lea	omabitmap(a5),a0
 	moveq	#1,d0
@@ -18787,27 +18881,27 @@ qloop
 	move.l	_GFXBase(a5),a6
 	lob	WaitTOF
 
-	tst.b	tapa_quad(a5)		; pit‰‰kˆ poistua?
+	tst.b	tapa_quad(a5)		; whether to leave?
 	bne.w	qexit
 
 	move.l	_IntuiBase(a5),a1
 	move.l	ib_FirstScreen(a1),a1
-	move.l	windowbase3(a5),a0	; ollaanko p‰‰llimm‰isen‰?
+	move.l	windowbase3(a5),a0	; are we on top?
 	cmp.l	wd_WScreen(a0),a1
 	beq.b	.joo
 	tst	sc_TopEdge(a1)
 	beq.w	.m
 .joo
 
-** jos AHI, ei scopeja
+** if the AHI, no Scopeti
 
-	cmp	#pt_prot,playertype(a5)		 ; pelitt‰‰ vain PT modeilla.
+	cmp	#pt_prot,playertype(a5)		 ; pelitt‰‰ only in PT mode.
 	bne.b	.nnq
 .nna	tst.b	ahi_use_nyt(a5)
 	bne.b	.n
 	bra.b	.nn
 
-.nnq	cmp	#pt_sample,playertype(a5)	 ; ja sampleplayerill‰
+.nnq	cmp	#pt_sample,playertype(a5)	 ; sample player is ready?
 ;	beq.b	.nn
 	beq.b	.nna
 	cmp	#pt_multi,playertype(a5) 	; ja PS3M:ll‰
@@ -18843,7 +18937,7 @@ qloop
 
 ;	cmp	#pt_prot,playertype(a5)
 ;	bne.b	.nm
-;	cmp.b	#6,quadmode2(a5)	 ; patternscope, j‰tet‰‰n n‰kyviin
+;	cmp.b	#6,quadmode2(a5)	 ; patternscope, left visible
 ;	beq.b	.m
 
 .nm	bsr.b	.clear
@@ -18873,7 +18967,7 @@ qloop
 	beq.w	qloop
 	move.l	d0,a1
 
-	move.l	im_Class(a1),d2		; luokka	
+	move.l	im_Class(a1),d2		; class	
 	move	im_Code(a1),d3
 	lob	ReplyMsg
 	cmp.l	#IDCMP_MOUSEBUTTONS,d2
@@ -18902,7 +18996,7 @@ qexit	bsr.b	qflush_messages
 	move.l	windowbase3(a5),d0
 	beq.b	.uh1
 	move.l	d0,a0
-	move.l	4(a0),quadpos(a5)	; koordinaatit talteen
+	move.l	4(a0),quadpos(a5)	; coordinates the recovery
 	lob	CloseWindow
 	clr.l	windowbase3(a5)
 .uh1
@@ -18925,7 +19019,7 @@ qflush_messages
 	tst.l	windowbase3(a5)
 	beq.b	.ex
 .m	move.l	(a5),a6
-	move.l	userport3(a5),a0	; flushataan pois kaikki messaget
+	move.l	userport3(a5),a0	; flush them out of all the Message
 	lob	GetMsg
 	tst.l	d0
 	beq.b	.ex
@@ -29206,11 +29300,18 @@ sidname		dc.b	"playsid.library",0
 mlinename	dc.b	"mline.library",0
 xfdname		dc.b	"xfdmaster.library",0
 
+timer_device_name		dc.b	"timer.device".0;
+
+even
+timer_port		dc.l 0
+timer_request		dc.l 0
+timer_device_set	dc.w	0
+
 	section	plrs,data
 
 
 *******
-* Fontti, ikkuna ja gadgetit
+* Font, and Window Gadgets
 *******
 text_attr
 	dc.l	topaz	; ta_Name
@@ -29222,15 +29323,13 @@ topaz	dc.b	"topaz.font",0
  even
 
 
-
-
-* p‰‰-ikkuna
+* main window
 winstruc
-	dc.w	360	;vas.yl‰k.x-koord.
-	dc.w	23	;---""--- y-koord
+	dc.w	360	; vas.yl‰k. x-cord.
+	dc.w	23	;---""--- y-cord
 wsizex	dc.w	0				; sizex
 wsizey	dc.w	0				; 181+25 ja 11
-colors	dc.b	2,1				; palkin v‰rit
+colors	dc.b	2,1				; bar colors
 idcmpmw	dc.l	idcmpflags
 	dc.l	wflags
  	dc.l	0					; gadgets
@@ -29655,3 +29754,4 @@ ptheader	ds.b	950
 
 
  end
+29
