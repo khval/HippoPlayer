@@ -22,7 +22,7 @@ ver	macro
 	endm	
 
 
-DEBUG	= 0
+DEBUG	= 1
 BETA	= 0	; 0: ei beta, 1: public beta, 2: private beta
 
 asm	= 0	; 1: AsmOnesta ajettava versio
@@ -1158,6 +1158,9 @@ progstart
 	move.l	d0,a4
 	move.l	d0,_DosBase(a5)
 
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	sub.l	a1,a1
 	lob	FindTask
 	move.l	d0,a3
@@ -1393,6 +1396,8 @@ parmExit:
 
 ; Segments for new processes. With 4 divisible addresses.
 
+	even
+
 main0	jmp	main(pc)
 
 	dc.l	16
@@ -1414,6 +1419,8 @@ info_segment
 	dc.b	0 ; pad
 
 	dc.l	16
+	dc.b 0
+
 quad_segment
 	dc.l	0
 	jmp	quad_code
@@ -1689,6 +1696,14 @@ main
  even
 .tr
  endc
+
+	move.l	d0,d1
+	lea		var_b,a5
+	move.l	_DosBase(a5),a6	; DosBase
+	jsr		_LVOSelectOutput(a6)
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
 
 	lea	cianame,a1
 	push	a1
@@ -2746,6 +2761,8 @@ exit
 
 * poistetaan loput prosessit...
 
+	move.l	#text_debug,_out_text
+	jsr	print_text
 
 * onko prosessien k‰ynnistys kesken?
 ;	cmp	#1,prefs_prosessi(a5)
@@ -2873,8 +2890,16 @@ exit
 	bsr.w	deleterexxport
 .nor2	bsr.w	deleteport0
 
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	nilfile(a5),d1
 	lore	Dos,Close
+
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
 
  ifne DEBUG
  	move.l	output(a5),d1
@@ -2883,8 +2908,15 @@ exit
 .xef
  endc
 
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_SIDBase(a5),d0		; poistetaan sidplayer
 	beq.b	.nahf			
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	jsr	rem_sidpatch				; patchi kanssa
 	move.l	_SIDBase(a5),a1
 	lore	Exec,CloseLibrary
@@ -2892,34 +2924,78 @@ exit
 	move.l	_MedPlayerBase1(a5),d0
 	bsr.w	closel
 	move.l	_MedPlayerBase2(a5),d0
-	bsr.b	closel
+	bsr.w	closel
 	move.l	_MedPlayerBase3(a5),d0
-	bsr.b	closel
+	bsr.w	closel
 	move.l	_MlineBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
 
 	move.l	_PPBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_XPKBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_XFDBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_ScrNotifyBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_RexxBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_DiskFontBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_WBBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_IntuiBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_GFXBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_ReqBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
 	move.l	_DosBase(a5),d0
-	bsr.b	closel
+	bsr.w	closel
 
 	bsr.w	tulostavirhe
 exit2
@@ -7868,7 +7944,7 @@ rbutton1
 	lea	l_filename(a3),a0			; Ladataan
 	move.l	l_nameaddr(a3),solename(a5)
 	move.b	d7,d0
-	bsr.w	loadmodule
+	jsr	loadmodule
 	tst.l	d0
 	bne.b	.loader
 
@@ -17385,8 +17461,133 @@ rawrequest
 	tst.l	d0
 .w	rts
 
+print_text
+	move.l	D0,_lost_D0
+	move.l	D1,_lost_D1
+	move.l	D2,_lost_D2
+	move.l	A0,_lost_A0
+	move.l	A1,_lost_A1
+	move.l	A6,_lost_A6
 
+	move.l	#printf_args,A1
 
+	move.l	_out_text,(A1)+
+	move.l	D0,(A1)+
+	move.l	D1,(A1)+
+	move.l	D2,(A1)+
+	move.l	D3,(A1)+
+	move.l	D4,(A1)+
+	move.l	D5,(A1)+
+	move.l	D6,(A1)+
+	move.l	D7,(A1)+
+
+	move.l	A0,(A1)+
+	move.l	_lost_A1,(A1)+
+	move.l	A2,(A1)+
+	move.l	A3,(A1)+
+	move.l	A4,(A1)+
+	move.l	A5,(A1)+
+	move.l	A6,(A1)+
+	move.l	A7,(A1)+
+
+	move.l	#PRINT_FMT,D1	; FMT
+	move.l	#printf_args,D2	; ARGS
+
+	lea	var_b,a5
+	move.l	_DosBase(a5),a6	; DosBase
+	jsr		_LVOVPrintf(a6)	; Printf
+
+	move.l	#5,D1			; need to wait a bit so we can see it.
+	lea	var_b,a5
+	move.l	_DosBase(a5),a6	; DosBase
+	jsr		_LVODelay(a6)	
+
+	move.l	_lost_D0,D0
+	move.l	_lost_D1,D1
+	move.l	_lost_D2,D2
+	move.l	_lost_A0,A0
+	move.l	_lost_A1,A1
+	move.l	_lost_A6,A6
+	rts
+
+mem_dump
+
+	move.l	#10,D0	; count down number of bytes	
+	move.l	#0,D1	; count up to new ine
+					; A0 memory to dump
+
+	jsr	address_number
+
+mem_dump_loop
+
+;	cmpi.l	#0,D0
+;	beq	mem_dump_exit
+
+	move.l	#printf_args,A1	; ARGS
+	move.l	(A0),0(A1)
+
+	move.l	a0,_lost_A0		; 
+	move.l	d0,_lost_D0		; 
+	move.l	d1,_lost_D1		;
+
+	move.l	#DUMP_FMT,D1	; FMT
+	move.l	#printf_args,D2	; ARGS
+
+	lea	var_b,a5
+	move.l	_DosBase(a5),a6	; DosBase
+	jsr		_LVOVPrintf(a6)	; Printf
+
+	move.l	_lost_A0,a0		; 
+	move.l	_lost_D0,d0		; 
+	move.l	_lost_D1,d1		;
+	
+	add.l	#4,A0			; next int32
+	sub.l	#1,D0
+	add.l	#1,D1
+
+	cmp.l	#$4,D1
+	bne.s	mem_dump_no_new_line
+
+	move.l	#0,D1			; start counter again.
+	jsr	address_number
+
+mem_dump_no_new_line
+	cmpi.l	#0,D0
+	bne	mem_dump_loop
+
+	move.l	#NEW_LINE,D1	; FMT
+	move.l	#printf_args,D2	; ARGS
+	move.l	_DosBase(a5),a6		; DosBase
+	jsr		_LVOVPrintf(a6)	; Printf
+
+	move.l	#NEW_LINE,D1	; FMT
+	move.l	#printf_args,D2	; ARGS
+	move.l	_DosBase(a5),a6		; DosBase
+	jsr		_LVOVPrintf(a6)	; Printf
+
+mem_dump_exit
+	rts
+
+address_number
+
+	move.l	a0,_lost_A0		; 
+	move.l	d0,_lost_D0		; 
+	move.l	d1,_lost_D1		;
+
+	move.l	#ADDRESS_MUMBER_FMT,D1	; FMT
+	move.l	#printf_args,A1	; ARGS
+
+	move.l	A0,(A1)			; ARG0 = ADDRESS
+	
+	move.l	#printf_args,D2	; ARGS
+	move.l	_DosBase,a6		; DosBase
+	jsr		_LVOVPrintf(a6)	; Printf
+
+	move.l	_lost_A0,a0		; 
+	move.l	_lost_D0,d0		; 
+	move.l	_lost_D1,d1		;
+
+	rts
 
 
 inforeqtags0
@@ -17491,7 +17692,65 @@ filerr_t	dc.b	"File error!",0
 hardware_t	dc.b "68020 or better required!",0
 ahi_t	dc.b	"AHI device error!",0
 
+text_debug				dc.b	"debug",0
+
+text_end_of_function		dc.b "end of function",0
+text_time_to_close_timer_device	dc.b	"time to close timer.device",0
+text_create_timer_request	dc.b	"create timer request (A0, D0)",0
+text_create_msgport		dc.b	"CreateMsgPort ()",0
+text_delete_msgport		dc.b	"DeleteMsgPort",0
+text_close_library		dc.b	"CloseLibrary",0
+text_open_library		dc.b	"OpenLibrary",0
+text_close_device		dc.b	"CloseDevice(A1)",0
+text_open_device		dc.b	"open device(A0,D0,A1,D1)",0
+text_create_port		dc.b	"CreatePort",0
+text_return_value		dc.b	"return value",0
+text_abort_io			dc.b	"AbortIO(A1)",0
+text_WaitPort			dc.b	"WaitPort(A0)",0
+text_WaitIO				dc.b	"WaitIO(A1)",0
+text_DoIO				dc.b	"DoIO(A1)",0
+text_SendIO				dc.b	"SendIO(A1)",0
+
+text_delete_io_request		dc.b "delete io request",0
+
+text_mem_dump	dc.b	"mem dump",10,0
+
+ADDRESS_MUMBER_FMT
+				dc.b	10,"%08lx: ",0
+
+DUMP_FMT		dc.b	" %08lx",0
+
+NEW_LINE		dc.b	10,0
+
+PRINT_FMT		dc.b	"%s:",10
+				dc.b	"D0 %08lx D1 %08lx D2 %08lx D3 %08lx D4 %08lx D5 %08lx D6 %08lx D7 %08lx",10
+				dc.b	"A0 %08lx A1 %08lx A2 %08lx A3 %08lx A4 %08lx A5 %08lx A6 %08lx A7 %08lx",10
+				dc.b	10,0
+
  even
+
+
+_out_text			dc.l 0
+
+printf_args		ds.l	17
+
+_lost_D0			dc.l 0
+_lost_D1			dc.l 0
+_lost_D2			dc.l 0
+_lost_D3			dc.l 0
+_lost_D4			dc.l 0
+_lost_D5			dc.l 0
+_lost_D6			dc.l 0
+_lost_D7			dc.l 0
+
+_lost_A0			dc.l 0
+_lost_A1			dc.l 0
+_lost_A2			dc.l 0
+_lost_A3			dc.l 0
+_lost_A4			dc.l 0
+_lost_A5			dc.l 0
+_lost_A6			dc.l 0
+_lost_A7			dc.l 0
 
 
  ifne EFEKTI
@@ -18661,7 +18920,7 @@ quad_code
 .1	moveq	#0,d7
 .11	move.l	#64*256*2,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab
@@ -18671,7 +18930,7 @@ quad_code
 .2
 	move.l	#64*256*2,d0
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr		getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab2
@@ -18681,13 +18940,13 @@ quad_code
 .3	moveq	#0,d7
 .33	move.l	#64*256*2,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab
 .wo	move.l	#512,d0			; flat bar
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,wotta(a5)
 	beq.w	.memer
 	bsr.w	mwotta			; made flat bar
@@ -18696,7 +18955,7 @@ quad_code
 
 .4	move.l	#64*256*2,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab2
@@ -18704,7 +18963,7 @@ quad_code
 
 .5	move.l	#64*256,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab3
@@ -18714,7 +18973,7 @@ quad_code
 
 .delt	move.l	#(256+32)*4,d0
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,deltab1(a5)
 	beq.b	.r
 	add.l	#256+32,d0
@@ -18728,12 +18987,12 @@ quad_code
 
 .6	move.l	#64*256,d0		; volume table
 	move.l	#MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	move.l	d0,mtab(a5)
 	beq.w	.memer
 	bsr.w	voltab3
 	bsr.b	.delt
-	beq.b	.memer
+	beq.w	.memer
 	bra.w	.wo
 
 .cont
@@ -18760,7 +19019,7 @@ quad_code
 * drawing Boards
 	move.l	#320/8*72*2,d0
 	move.l	#MEMF_CHIP!MEMF_CLEAR,d1
-	bsr.w	getmem
+	jsr	getmem
 	beq.b	.me
 	move.l	d0,buffer0(a5)
 	add.l	#320/8*2,d0			; yl‰‰lle 2 spare lines
@@ -20878,7 +21137,7 @@ loadmodule
 
 	jsr	fadevolumedown
 	move	d0,-(sp)
-	bsr.w	halt			* Vapautetaan se jos on
+	jsr	halt			* Vapautetaan se jos on
 
 	move.l	modulefilename(a5),a0
 
