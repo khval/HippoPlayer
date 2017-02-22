@@ -1145,6 +1145,8 @@ idcmpflags2 set idcmpflags2!IDCMP_MOUSEBUTTONS!IDCMP_RAWKEY
 
 	section	detach,code_p
 
+
+
 progstart
 	lea	var_b,a5
 	move.l	a0,d6
@@ -1157,9 +1159,6 @@ progstart
 	lob	OldOpenLibrary
 	move.l	d0,a4
 	move.l	d0,_DosBase(a5)
-
-	move.l	#text_debug,_out_text
-	jsr	print_text
 
 	sub.l	a1,a1
 	lob	FindTask
@@ -1692,7 +1691,7 @@ main
 	lob	Open
 	move.l	d0,output(a5)
 	bra.b	.tr
-.bmb	dc.b	"CON:0/0/300/150/HiP debug window",0
+.bmb	dc.b	"CON:0/0/800/200/HiP debug window",0
  even
 .tr
  endc
@@ -1702,8 +1701,10 @@ main
 	move.l	_DosBase(a5),a6	; DosBase
 	jsr		_LVOSelectOutput(a6)
 
-	move.l	#text_debug,_out_text
-	jsr	print_text
+	jsr 	open_timer_device
+
+;	move.l	#text_debug,_out_text
+;	jsr	print_text
 
 	lea	cianame,a1
 	push	a1
@@ -1882,101 +1883,6 @@ main
 	addq	#1,d0
 	bra.b	.er
 .eer	rts
-
-.open_timer_device
-	movem	D0-D7/A0-A6,-(SP)
-
-	jmp		_LVOCreateMsgPort(a6)
-	lea		timer_port,a0
-	move.l	d0,(a0)
-
-	; Is ok?
-	cmpi.w	#0,D0
-	BEQ		.open_timer_device_failed
-
-	; ***** Create Timer Request *****
-	move.l	D0,A0
-	move.l	#20,D0	;	Timer Request Size
-	jmp	_LVOCreateIORequest(a6)
-	lea		timer_request,A1
-	move.l	D0,(A1)
-
-	; Is ok?
-	cmpi.w	#0,d0
-	BEQ		.open_timer_device_failed
-
-	; ***** Open Device *****
-	lea		timer_device_name,A0
-	move.l	#0,D0					; unit
-	lea		timer_request,A1
-	move.l	(A1),A1
-	move.l	#0,D1					; flags
-	move.l	(a5),a6
-	jmp	_LVOOpenDevice(a6)
-
-.open_timer_device_failed
-	movem	(SP)+,D0-D7/A0-A6
-	rts
-
-.close_timer_device
-	movem	D0-D7/A0-A6,-(SP)
-
-	LEA 		timer_device_set,A2
-	move.w	(A2),D0
-	
-	cmpi.w	#0,d0
-	BEQ		.safe_to_close_device
-
-	lea		timer_request,A0
-	move.l	(A0),D0
-
-	cmpi.w	#0,d0
-	BEQ		.no_timer_request
-
-	; AbortIO
-	move.l	d0,a1
-	move.l	(a5),a6
-	jmp	_LVOWaitIO(a6)
-
-	; WaitIO
-	lea		timer_request,A1
-	move.l	(A1),A1
-	move.l	(a5),a6
-	jmp	_LVOWaitIO(a6)
-
-.safe_to_close_device
-
-	; CloseDevice
-	lea		timer_request,A0
-	move.l	(A0),D0
-
-	cmpi.w	#0,d0
-	BEQ		.no_timer_request
-	
-	move.l  D0,A0
-	move.l	(a5),a6
-	jmp	_LVOCloseDevice(a6)
-
-	; DeleteIORequest
-	lea		timer_request,A0
-	move.l	(A0),A0
-	jmp	_LVODeleteIORequest(a6)
-
-.no_timer_request
-
-	; DeleteIMsgPort
-	lea		timer_request,A0
-	move.l	(A0),d0
-
-	cmpi.w	#0,d0
-	BEQ		.no_timer_msgport
-
-	move.l	D0,A0
-	jmp	_LVODeleteMsgPort(a6)
-
-.no_timer_msgport
-	movem	(SP)+,D0-D7/A0-A6
-	rts
 
 .gadu	move	d0,gg_GadgetID(a0)
 	tst.b	uusikick(a5)
@@ -2901,12 +2807,7 @@ exit
 	move.l	#text_debug,_out_text
 	jsr	print_text
 
- ifne DEBUG
- 	move.l	output(a5),d1
- 	beq.b	.xef
-	lob	Close
-.xef
- endc
+
 
 	move.l	#text_debug,_out_text
 	jsr	print_text
@@ -2931,37 +2832,37 @@ exit
 	bsr.w	closel
 
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_pp,_out_text
 	jsr	print_text
 
 	move.l	_PPBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_xpk,_out_text
 	jsr	print_text
 
 	move.l	_XPKBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_xfd,_out_text
 	jsr	print_text
 
 	move.l	_XFDBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_ScrNotify,_out_text
 	jsr	print_text
 
 	move.l	_ScrNotifyBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_rexx,_out_text
 	jsr	print_text
 
 	move.l	_RexxBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_diskfont,_out_text
 	jsr	print_text
 
 	move.l	_DiskFontBase(a5),d0
@@ -2973,50 +2874,266 @@ exit
 	move.l	_WBBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_intuition,_out_text
 	jsr	print_text
 
 	move.l	_IntuiBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_gfx,_out_text
 	jsr	print_text
 
 	move.l	_GFXBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	move.l	#text_close_reqtools,_out_text
 	jsr	print_text
 
 	move.l	_ReqBase(a5),d0
 	bsr.w	closel
 
-	move.l	#text_debug,_out_text
+	jsr 	close_timer_device
+
+ ifne DEBUG
+	move.l	#text_close_debug_output,_out_text
 	jsr	print_text
+
+	lea	var_b,a5
+ 	move.l	output(a5),d1
+
+	cmpi.l	#0,d1
+ 	beq		.xef
+
+	move.l	_DosBase(a5),a6
+	jsr		_LVOClose(a6)
+
+;	lob	Close
+.xef
+ endc
+
+	move.l	#$FF001001,D5		; debug token
 
 	move.l	_DosBase(a5),d0
 	bsr.w	closel
 
+	move.l	#$FF001002,D5		; debug token
+
 	bsr.w	tulostavirhe
 exit2
 
-	move.l	_IntuiBase(a5),d0
-	bsr.b	closel
+	move.l	#$FF001003,D5		; debug token
+
+;	move.l	_IntuiBase(a5),d0		; is closed before should not be closed again. or maybe exit2?
+;	bsr.b	closel
+
+	move.l	#$FF001004,D5		; debug token
 
  ifeq asm
-	move.l	lockhere(a5),d1		; vapautetaan kopioitu lukko
-	lore	Dos,UnLock
-	lore	Exec,Forbid				; kiellet‰‰n moniajo
-
-	bsr.w	vastomaviesti			; vastataan killeriviestiin
-
-	move.l	segment(a5),d1
-	lore	Dos,UnLoadSeg			; vapautetaan omat hunkit
+;	move.l	lockhere(a5),d1		; vapautetaan kopioitu lukko
+;	lore	Dos,UnLock
+;	lore	Exec,Forbid				; kiellet‰‰n moniajo
+;	bsr.w	vastomaviesti			; vastataan killeriviestiin
+;	move.l	segment(a5),d1
+;	lore	Dos,UnLoadSeg			; vapautetaan omat hunkit
  endc
+
+	move.l	#$FF001005,D5		; debug token
 
 	moveq	#0,d0
 	rts
 
+;.closel_s
+;	move.l	(a0),d0
+;	cmpi.l	#0,d0
+;	beq.b	.huh
+;	move.l	#0,(a0)	; set pointer to 0
+;	move.l	#4.w, a6
+;	jsr		_LVOCloseLibrary,a6
+;.huh	rts
+
+
+open_timer_device
+;	movem	D0-D7/A0-A6,-(SP)
+
+	move.l	#text_create_port,_out_text
+	move.l	#0,D0
+	jsr		print_text
+
+	move.l	4.w,a6
+	jsr		_LVOCreateMsgPort(a6)
+	move.l	d0,timer_msgport
+
+	move.l	#text_return_value,_out_text
+	jsr		print_text
+
+	; Is ok?
+	cmpi.w	#0,D0
+	BEQ		.open_timer_device_failed
+
+	; ***** Create Timer Request *****
+	move.l	timer_msgport,A0	; 	MsgPort
+	move.l	#IOTV_SIZE,D0	;	Timer Request Size
+
+	move.l	#text_create_timer_request,_out_text
+	jsr		print_text
+
+	move.l	4.w,a6	;	ExecBase
+	jsr		_LVOCreateIORequest(a6)
+	move.l	D0,timer_request		; D0 is stored in timer_request
+
+	move.l	#text_return_value,_out_text
+	jsr		print_text
+
+	; Is ok?
+	cmpi.l	#0,D0
+	BEQ		.open_timer_device_failed
+
+	; ***** Open Device *****
+	move.l	#timer_device_name,A0
+;	move.l	#UNIT_MICROHZ,D0
+	move.l	#UNIT_VBLANK,D0			; unit
+	move.l	timer_request,A1
+	move.l	#0,D1					; flags
+
+	move.l	#text_open_device,_out_text
+	jsr		print_text
+
+	move.l	4.w,a6
+	jsr		_LVOOpenDevice(a6)
+
+	move.l	#text_return_value,_out_text
+	jsr		print_text
+
+.open_timer_device_failed
+;	movem	(SP)+,D0-D7/A0-A6 	;		exit early
+	rts
+
+	move.l	timer_request,A0
+	move.l	A0,D0
+
+	cmpi.w	#0,d0
+	BEQ		.no_timer_request
+	
+	move.l  	D0,A0
+
+	move.l	#text_close_device,_out_text
+	jsr		print_text
+
+	move.l	4.w,a6				; ExceBase
+	jsr	_LVOCloseDevice(a6)
+
+	move.l	#text_delete_io_request,_out_text
+	jsr		print_text
+
+	; DeleteIORequest
+	move.l	timer_request,A0
+	move.l	4.w,a6				; ExceBase
+	jsr	_LVODeleteIORequest(a6)
+
+.no_timer_request
+
+	; DeleteIMsgPort
+	move.l	timer_request,A0
+	move.l	A0,d0
+
+	move.l	timer_msgport,D0
+	cmpi.w	#0,d0
+	BEQ		.no_timer_msgport
+
+	move.l	D0,A0
+
+	move.l	#text_delete_msgport,_out_text
+	jsr		print_text
+
+	jsr	_LVODeleteMsgPort(a6)
+
+.no_timer_msgport
+
+	move.l	#text_end_of_function,_out_text
+	jsr		print_text
+
+;	movem	(SP)+,D0-D7/A0-A6
+	rts
+
+close_timer_device
+
+;	movem	D0-D7/A0-A6,-(SP)
+
+	move.w	timer_device_set,D0
+	cmpi.w	#0,d0
+	BEQ		.safe_to_close_device
+
+	move.l	timer_request,A0
+	move.l	(A0),D0
+
+	cmpi.w	#0,d0
+	BEQ		.no_timer_request
+
+	move.l	#text_abort_io,_out_text
+	jsr		print_text
+
+	; AbortIO
+	move.l	d0,a1
+	move.l	4.w,a6
+	jsr	_LVOWaitIO(a6)
+
+	move.l	#text_WaitIO,_out_text
+	jsr		print_text
+
+	; WaitIO
+	move.l	timer_request,A1
+	move.l	4.w,a6
+	jsr	_LVOWaitIO(a6)
+
+.safe_to_close_device
+
+	; CloseDevice
+	move.l	timer_request,A1
+	move.l	A1,D0
+
+	cmpi.w	#0,d0
+	BEQ		.no_timer_request
+	
+;	move.l  	D0,A0
+
+	move.l	#text_close_device,_out_text
+	jsr		print_text
+
+	move.l	4.w,a6				; ExceBase
+	jsr	_LVOCloseDevice(a6)
+
+	move.l	#text_delete_io_request,_out_text
+	jsr		print_text
+
+	; DeleteIORequest
+	move.l	timer_request,A0
+	move.l	4.w,a6				; ExceBase
+	jsr	_LVODeleteIORequest(a6)
+
+.no_timer_request
+
+	; DeleteIMsgPort
+	move.l	timer_request,A0
+	move.l	A0,d0
+
+	move.l	timer_msgport,D0
+	cmpi.w	#0,d0
+	BEQ		.no_timer_msgport
+
+	move.l	D0,A0
+
+	move.l	#text_delete_msgport,_out_text
+	jsr		print_text
+
+	jsr	_LVODeleteMsgPort(a6)
+
+.no_timer_msgport
+
+	move.l	#text_end_of_function,_out_text
+	jsr		print_text
+
+;	movem	(SP)+,D0-D7/A0-A6
+	rts
 
 closel	beq.b	.huh
 	move.l	d0,a1
@@ -17694,6 +17811,28 @@ ahi_t	dc.b	"AHI device error!",0
 
 text_debug				dc.b	"debug",0
 
+
+text_close_pp
+				dc.b	"CloseLibrary pp",0
+text_close_xpk
+				dc.b	"CloseLibrary xpk",0
+text_close_xfd
+				dc.b	"CloseLibrary xfd",0
+text_close_ScrNotify
+				dc.b	"CloseLibrary ScrNotify",0
+text_close_rexx
+				dc.b	"CloseLibrary rexx",0
+text_close_diskfont
+				dc.b	"CloseLibrary diskfont",0
+text_close_intuition
+				dc.b	"CloseLibrary intuition",0
+text_close_gfx
+				dc.b	"CloseLibrary gfx",0
+text_close_reqtools
+				dc.b	"CloseLibrary reqtools",0
+text_close_debug_output
+				dc.b	"Close debug console",0
+
 text_end_of_function		dc.b "end of function",0
 text_time_to_close_timer_device	dc.b	"time to close timer.device",0
 text_create_timer_request	dc.b	"create timer request (A0, D0)",0
@@ -17707,9 +17846,9 @@ text_create_port		dc.b	"CreatePort",0
 text_return_value		dc.b	"return value",0
 text_abort_io			dc.b	"AbortIO(A1)",0
 text_WaitPort			dc.b	"WaitPort(A0)",0
-text_WaitIO				dc.b	"WaitIO(A1)",0
+text_WaitIO			dc.b	"WaitIO(A1)",0
 text_DoIO				dc.b	"DoIO(A1)",0
-text_SendIO				dc.b	"SendIO(A1)",0
+text_SendIO			dc.b	"SendIO(A1)",0
 
 text_delete_io_request		dc.b "delete io request",0
 
@@ -29562,7 +29701,7 @@ xfdname		dc.b	"xfdmaster.library",0
 timer_device_name		dc.b	"timer.device".0;
 
 even
-timer_port		dc.l 0
+timer_msgport		dc.l 0
 timer_request		dc.l 0
 timer_device_set	dc.w	0
 
