@@ -4,7 +4,7 @@
 *******************************************************************************
 * Aloitettu 5.2.-94
 
-
+have_cia_timers = 0
 
 ver	macro
 ;	dc.b	"v2.30 (5.8.1996)"
@@ -140,9 +140,12 @@ check	macro
 	include	workbench/wb_lib.i
 
 	include	hardware/intbits.i
-	include	hardware/cia.i
 
+ ifne have_cia_timers
+	include	hardware/cia.i
 	include	resources/cia_lib.i
+ endif
+
 	include	libraries/diskfont_lib.i
 	
 
@@ -1140,6 +1143,9 @@ idcmpflags2 set idcmpflags2!IDCMP_MOUSEBUTTONS!IDCMP_RAWKEY
 ; Aloituskoodi. Komentoriviparametrit, uusi prosessi, WB viesti.
 ;*
 
+
+
+
  ifeq asm
 
 
@@ -1600,20 +1606,24 @@ main
 	move	WINSIZY(a5),wsizey
 
 
-	cmp	#34,LIB_VERSION(a6)		; v‰rit kickstartin mukaan
+	cmp	#34,LIB_VERSION(a6)		; colors, kickstart, the
 	ble.b	.vanha
-	st	uusikick(a5)				; Uusi kickstart
+	st	uusikick(a5)				; The new kickstart
 
 	lea	colors,a0
 	move	#$0301,d0
 ;	moveq	#$0001,d0
-	move	d0,(a0)				; Ikkunoiden v‰rit sen mukaan
+	move	d0,(a0)				; Window colors, depending
+
+; don't know way but when cia timers is disabled we get a error on this
+
+ ifne have_cia_timers
 	move	d0,colors2-colors(a0)
 	move	d0,colors3-colors(a0)
+ endif
 
 
-
-	lea	winstruc,a0				; Ikkunat avautuu publiscreeneille
+	lea	winstruc,a0				; lazing opens publiscreeneille
 	bsr.b	.boob
 	lea	winstruc2-winstruc(a0),a0
 	bsr.b	.boob
@@ -1630,7 +1640,7 @@ main
 	rts
 
 .ohib
-	move	WINSIZX(a5),windowpos22(a5)	; Pienen koko ZipWindowille
+	move	WINSIZX(a5),windowpos22(a5)	; Small size ZipWindowille
 	move	#11,windowpos22+2(a5)
 	or.l	#IDCMP_CHANGEWINDOW,idcmpmw	
 
@@ -1638,7 +1648,7 @@ main
 
 
 
- ifeq asm				; uusi nykyinen hakemisto
+ ifeq asm				; a new current directory
 	move.l	lockhere(a5),d1
 	lore	Dos,CurrentDir
  endc
@@ -1666,11 +1676,11 @@ main
 	move.l	d0,_ScrNotifyBase(a5)
 .olld
 
-	lea	rmname(pc),a1		; Onko RexxMast p‰‰ll‰?
+	lea	rmname(pc),a1		; Is RexxMast earth?
 	lob	FindTask
 	tst.l	d0
 	beq.b	.norexx
-	lea	rexxname(pc),a1		; jos on, avataan rexxsyslib
+	lea	rexxname(pc),a1		; if it is opened rexxsyslib
 	lob	OldOpenLibrary
 	move.l	d0,_RexxBase(a5)
 	sne	rexxon(a5)		; Lippu
@@ -1706,6 +1716,8 @@ main
 ;	move.l	#text_debug,_out_text
 ;	jsr	print_text
 
+
+ ifne have_cia_timers
 	lea	cianame,a1
 	push	a1
 	move.b	#'a',3(a1)
@@ -1717,7 +1729,7 @@ main
 	moveq	#0,d0
 	lob	OpenResource
 	move.l	d0,ciabaseb(a5)
-
+ endif
 
 
 *** Multab scopeille
@@ -17951,6 +17963,23 @@ efekti
 * Keskeytykset
 *******
 
+; We don't have CIA timers, this is just to see what happens with out.
+
+ ifeq have_cia_timers
+
+init_ciaint
+	rts
+
+rem_ciaint
+	rts
+
+ endif
+
+; we have CIA timers.
+
+
+ ifne have_cia_timers
+
 _ciaa	=	$bfe001
 _ciab	=	$bfd000
 
@@ -18065,6 +18094,8 @@ rem_ciaint
 	st	ciasaatu(a5)				; do not interrupt!
 	popm	all
 	rts
+
+ endif
 
 *** VBlank keskeytys
 
@@ -18190,13 +18221,15 @@ intserver
 	tst.b	vbtimeruse(a5)
 	bne.b	.eir
 
+
+ ifne have_cia_timers
+
 	move.l	playerbase(a5),a0	; Fast CIA-timer
 	move	p_liput(a0),d0
 	btst	#pb_ciakelaus,d0
 	bne.b	.joog
 	btst	#pb_ciakelaus2,d0
 	beq.b	.eir
-
 	cmp	#pt_prot,playertype(a5)		; ProTracker??
 	bne.b	.joog
 	lea	kplbase(a5),a0
@@ -18211,8 +18244,6 @@ intserver
 	beq.b	.aap
 	lea	$200(a0),a0
 .aap	bra.b	.aa
-
-
 .joog
 	move	timerhi(a5),d0
 	tst.b	kelausnappi(a5)		; whether printed kelausnappia?
@@ -18229,9 +18260,10 @@ intserver
 	move.b	d0,(a0)
 	ror	#8,d0
 	move.b	d0,$100(a0)
+
+ endif
+
 .eir
-
-
 
 *** Brushed stuff port
 	move.b	mainvolume+1(a5),hippoport+hip_mainvolume(a5)
@@ -30151,5 +30183,3 @@ var_b		ds.b	size_var
 ptheader	ds.b	950
 
 
- end
-29
