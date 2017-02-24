@@ -5,6 +5,7 @@
 * Aloitettu 5.2.-94
 
 have_cia_timers = 0
+hardware_poking_enabled = 0
 
 ver	macro
 ;	dc.b	"v2.30 (5.8.1996)"
@@ -21,6 +22,7 @@ ver	macro
 	dc.b	"v2.45 (10.1.2000)"
 	endm	
 
+DMACON EQU $096
 
 DEBUG	= 1
 BETA	= 0	; 0: ei beta, 1: public beta, 2: private beta
@@ -898,22 +900,22 @@ idopen		rs.l	1
 iorequest2	rs.b	IO_SIZE
 idmsgport	rs.b	MP_SIZE
 intstr		rs.b	IS_SIZE
-rawkeyinput	rs	1		; rawkoodi
+rawkeyinput	rs	1		; raw code
 
 ******* Viestiportti
-omaviesti0	rs.l	1		; Porttiin saapunut viesti
+omaviesti0	rs.l	1		; arrived at the gate of the message
 
 hippoport	rs.b	HippoPort_SIZEOF
 
-poptofrontr	rs.l	1		; rutiini esiinpullauttamiseksi
-newcommand	rs.l	1		; osoitin uuteen komentoon
-appnamebuf	rs.l	1		; appviestin nimien tyˆpuskuri
+poptofrontr	rs.l	1		; routine to help esiinpull
+newcommand	rs.l	1		; pointing to a new command
+appnamebuf	rs.l	1		; appviestin names of Job Buffer Size
 *******
 
 ********* ARexx
 rexxport	rs.b	MP_SIZE
 rexxmsg		rs.l	1
-rexxon		rs.b	1	; ~0: ARexx aktivoitu!
+rexxon		rs.b	1	; ~0: ARexx activated!
 keycheck	rs.b	1		; keyfile checkki. 0=oikea keyfile
 rexxresult	rs.l	1		; argstringi
 
@@ -1562,6 +1564,9 @@ DEBU	macro
 	endc
 	endm
 
+; color flash on the screen $DFF000 custom, $6 ? 180?
+
+ ifne hardware_poking_enabled
 
  ifne asm
 flash	
@@ -1570,6 +1575,14 @@ flash
 	bne.b	.p
 	rts
  endc
+
+ endif
+
+ ifeq hardware_poking_enabled
+
+flash
+	rts
+ endif
 
 
  ifne DEBUG
@@ -5929,6 +5942,9 @@ setrandom
 	popm	all
 	rts
 
+ ; really is this only way to do this????
+
+ ifne hardware_poking_enabled
 
 srand   
 	move.l	4.w,a6
@@ -5936,7 +5952,7 @@ srand
 	lob	AvailMem
 	add.l	ThisTask(a6),d0
 
-	lea	$dff000,a1
+	lea	CUSTOM,A1
 	add.l	4(a1),d0      ; Initialize random generator.. Call once
         add.l   2(a1),d0
 	lea	$dc0000,a0
@@ -5961,6 +5977,16 @@ srand
 
         move.l  d0,seed(a5)
         rts
+
+ endif
+
+ ifeq hardware_poking_enabled
+ 
+srand
+	; should compile a C program and se what it does.
+	rts
+
+ endif
 
 getrandom
 	push	d0
@@ -12433,8 +12459,19 @@ updateps3m2
 	bne.b	.nd
 	moveq	#64,d1
 	sub.b	stereofactor_new(a5),d1
-	move	d1,$dff0c8
-	move	d1,$dff0d8
+
+ ifne hardware_poking_enabled
+
+	move	d1,CUSTOM+AUD2VOL
+	move	d1,CUSTOM+AUD3VOL
+
+ else
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
+ endif
+
 .nd	rts
 
 updateps3m
@@ -15255,15 +15292,15 @@ lootaan_aika
 
 ;	cmp.b	#' ',-1(a0)
 ;	beq.b	.piz
-;	move.b	#' ',(a0)+		; tungetaan aina modnimi v‰liin
+;	move.b	#' ',(a0)+		; always stuffed between modnimi
 ;.piz	lea	modulename(a5),a1
 ;	moveq	#40-1,d0
 ;.he	move.b	(a1)+,(a0)+
 ;	dbeq	d0,.he
 
-;.eisitten		; vanhalla kickill‰ ei, koska se sotkee gadgetit jos liian pitk‰
-			; uudella tulee errori amigaguidella scrollailtaessa jos
-			; teksti menee reunuksen yli.. kai. 
+;.eisitten		; Kick the old public does not, because it messes up the gadgets if too long
+			; comes with a new errori amigaguidella if scrollailtaessa
+			; Text goes over the border .. I guess.
 
 	clr.b	(a0)
 	bra.w	lootaus
@@ -15458,8 +15495,8 @@ putnu	ext.l	d0
 
 
 *******************************************************************************
-* Hiiren nappuloita painettu, tutkitaan oliko tiedostojen p‰‰ll‰
-* ja pistet‰‰n palkki
+* The mouse buttons pressed, examined whether the files on top
+* and the injected beam
 *******
 
 markline
@@ -15470,9 +15507,9 @@ markline
 	move	mousex(a5),d0
 	move	mousey(a5),d1
 	sub	windowleft(a5),d0
-	sub	windowtop(a5),d1	; suhteutus fonttiin
+	sub	windowtop(a5),d1	; Scale with font
 	
-	cmp	#30+WINX,d0		; onko tiedostolistan p‰‰ll‰?
+	cmp	#30+WINX,d0		; whether on top of the file list?
 	blo.w	.out
 	cmp	#251+WINX,d0
 	bhi.w	.out
@@ -15488,7 +15525,7 @@ markline
 
 	tst	modamount(a5)
 	bne.b	.ona
-	moveq	#0,d1		; ei oo modeja, otetaan eka
+	moveq	#0,d1		; oo no mods will be my first
 .ona
 
 	move	d1,d2
@@ -15525,12 +15562,12 @@ markline
 	beq.b	.double
 * Tiedostoa doubleclickattu! Soitetaan...
 
-	tst.b	doubleclick(a5)		; onko sallittua?
+	tst.b	doubleclick(a5)		; whether it is permissible?
 	bne.w	rbutton1			; Play!
 	rts
 
 .nodouble
-	lea	clicksecs(a5),a0		; klikin aika talteen
+	lea	clicksecs(a5),a0		; clique time to recover
 	lea	clickmicros(a5),a1
 	lore	Intui,CurrentTime
 .double
@@ -15540,7 +15577,7 @@ markline
 
 
 
-unmarkit						; pyyhitaan merkkaus pois
+unmarkit						; Wipe off the markup
 markit
 	move	markedline(a5),d5
 	bmi.b	.outside
@@ -15550,7 +15587,7 @@ markit
 	beq.b	.outside
 
 	lea	listheader(a5),a4	
-	move	chosenmodule(a5),d0	; etsit‰‰n kohta
+	move	chosenmodule(a5),d0	; for a point
 .luuppo
 	TSTNODE	a4,a3
 	beq.b	.nomods
@@ -15572,7 +15609,7 @@ markit
 	
 	move.l	rastport(a5),a1
 	move.b	rp_Mask(a1),d7
-	move.b	#%11,rp_Mask(a1)		; K‰sitell‰‰n kahta alinta bittitasoa.
+	move.b	#%11,rp_Mask(a1)		; Deals with the two lowest bit level.
 	move.l	a1,a0
 	lore	GFX,ClipBlit
 
@@ -15740,10 +15777,10 @@ info_code
 infocode
 
 
-*** Avataan ikkuna
-* 39 kirjainta mahtuu laatikkoon
-* Linefeedi ILF joka myˆhemmin korvataan 10:ll‰. Sit‰varten ett‰ voidaan
-* karsia ylim‰‰r‰set linefeedit pois.
+*** opened the window
+* 39 letters in a box can hold
+* ILF line feed which was later replaced by 10. For it may be that the
+* ylim‰‰r‰set to cut off the line feed.
 
 
 ILF	=	$83
@@ -17420,27 +17457,38 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 .s1
 
 
+;	--- THIS LOOKS MONO CAN'T BE WHAT I'M LOOKING FOR ---
 
+ ifeq hardware_poking_enabled
 
-	lea	$dff096,a3
+	move.l	#text_debug,_out_text
+	jsr	print_text
 
-	move	#$f,(a3)
-	move.l	a0,$a0-$96(a3)
-	move.l	a0,$b0-$96(a3)
-	move.l	a0,$c0-$96(a3)
-	move.l	a0,$d0-$96(a3)
+ endif
+
+ ifne hardware_poking_enabled
+
+	lea	CUSTOM,a3
+
+	move	#$f,DMACON(a3)
+	move.l	a0,AUD0LCH(a3)
+	move.l	a0,AUD1LCH(a3)
+	move.l	a0,AUD2LCH(a3)
+	move.l	a0,AUD3LCH(a3)
 	move	mainvolume(a5),d0
 	lsr	#1,d0
-	move	d0,$a8-$96(a3)
-	move	d0,$b8-$96(a3)
-	move	d0,$c8-$96(a3)
-	move	d0,$d8-$96(a3)
+	move	d0,AUD0VOL(a3)
+	move	d0,AUD1VOL(a3)
+	move	d0,AUD2VOL(a3)
+	move	d0,AUD3VOL(a3)
 
 	lsr.l	#1,d1
-	move	d1,$a4-$96(a3)
-	move	d1,$b4-$96(a3)
-	move	d1,$c4-$96(a3)
-	move	d1,$d4-$96(a3)
+	move	d1,AUD0LEN(a3)
+	move	d1,AUD1LEN(a3)
+	move	d1,AUD2LEN(a3)
+	move	d1,AUD3LEN(a3)
+
+ endif
 
 ** perioidi mousen x-koordinaatista
 	sub	#31,d5			; d5 = 0-315
@@ -17449,23 +17497,32 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 	add	d5,d5
 	move	.periods(pc,d5),d5
 
-	move	d5,$a6-$96(a3)
-	move	d5,$b6-$96(a3)
-	move	d5,$c6-$96(a3)
-	move	d5,$d6-$96(a3)
+ ifne hardware_poking_enabled
+
+	move	d5,AUD0PER(a3)
+	move	d5,AUD1PER(a3)
+	move	d5,AUD2PER(a3)
+	move	d5,AUD3PER(a3)
+
+ endif
 
 	lore	GFX,WaitTOF
 	move	#$800f,(a3)
 	lob	WaitTOF
 
-	move.l	d2,$a0-$96(a3)
-	move.l	d2,$b0-$96(a3)
-	move.l	d2,$c0-$96(a3)
-	move.l	d2,$d0-$96(a3)
-	move	d3,$a4-$96(a3)
-	move	d3,$b4-$96(a3)
-	move	d3,$c4-$96(a3)
-	move	d3,$d4-$96(a3)
+ ifne hardware_poking_enabled
+
+	move.l	d2,AUD0LCH(a3)
+	move.l	d2,AUD1LCH(a3)
+	move.l	d2,AUD2LCH(a3)
+	move.l	d2,AUD3LCH(a3)
+
+	move	d3,AUD0LEN(a3)
+	move	d3,AUD1LEN(a3)
+	move	d3,AUD2LEN(a3)
+	move	d3,AUD3LEN(a3)
+
+ endif
 
 	bra.w	.msgloop
 
@@ -17823,7 +17880,10 @@ ahi_t	dc.b	"AHI device error!",0
 
 text_debug				dc.b	"debug",0
 
-
+text_dmawait
+				dc.b "hippo dmawait",0
+text_clearsound
+				dc.b "hippo clearsound",0
 text_close_pp
 				dc.b	"CloseLibrary pp",0
 text_close_xpk
@@ -17861,10 +17921,13 @@ text_WaitPort			dc.b	"WaitPort(A0)",0
 text_WaitIO			dc.b	"WaitIO(A1)",0
 text_DoIO				dc.b	"DoIO(A1)",0
 text_SendIO			dc.b	"SendIO(A1)",0
+text_blitter_missing 	dc.b "Blitter missing",0
 
 text_delete_io_request		dc.b "delete io request",0
 
 text_mem_dump	dc.b	"mem dump",10,0
+
+
 
 ADDRESS_MUMBER_FMT
 				dc.b	10,"%08lx: ",0
@@ -17906,9 +17969,9 @@ _lost_A7			dc.l 0
 
  ifne EFEKTI
 efekti
-	tst.b	win(a5)		; onko ikkunaa?
+	tst.b	win(a5)		; whether the window?
 	beq.b	.r
-	tst.b	kokolippu(a5)	; ikkuna pieni?
+	tst.b	kokolippu(a5)	; small window?
 	beq.b	.r
 
 	moveq	#.sine-.sin-1,d7
@@ -19659,11 +19722,15 @@ dung
 	lob	OwnBlitter
 	lob	WaitBlit
 
-	lea	$dff058,a0
+ ifne hardware_poking_enabled
+
+	lea	CUSTOM+$058,a0
 	move.l	draw2(a5),$54-$58(a0)	* tyhjennet‰‰n piirtoalue
 	move	#0,$66-$58(a0)
 	move.l	#$01000000,$40-$58(a0)
 	move	#64*64+20,(a0)
+
+ endif
 
 	lob	DisownBlitter
 
@@ -19822,8 +19889,17 @@ mirrorfill0
 	lore	GFX,OwnBlitter
 	lob	WaitBlit
 
+ ifeq hardware_poking_enabled
+
+	move.l	#text_blitter_missing,_out_text
+	jsr	print_text
+
+ endif
+
+ ifne hardware_poking_enabled
+
 	move.l	draw1(a5),a0
-	lea	$dff058,a2
+	lea	$CUSTOM+$058,a2
 
 	move.l	a0,$50-$58(a2)	* A
 	lea	40(a0),a1
@@ -19837,6 +19913,8 @@ mirrorfill0
 	move.l	d0,$44-$58(a2)
 	move.l	#$0b5a0000,$40-$58(a2)	* D = A not C
 	move	#31*64+20,(a2)	
+
+ endif
 
 	lea	63*40(a0),a1		* kopioidaan
 	lob	WaitBlit
@@ -20147,13 +20225,18 @@ freqscope
 	bsr.w	.dr
 
 * Pystyfillaus
+
+; what ever its suppose to do this wont work on AmigaOS4
+
+ ifne hardware_poking_enabled
+
 	lore	GFX,OwnBlitter
 
 	move.l	draw1(a5),a0
 	addq	#2,a0
 	moveq	#2,d0
 	lea	40(a0),a1
-	lea	$dff000,a2
+	lea	CUSTOM,A2
 
 	lob	WaitBlit
 	move.l	a0,$50(a2)	* A
@@ -20169,6 +20252,7 @@ freqscope
 	lob	WaitBlit
 	jmp	_LVODisownBlitter(a6)
 
+ endif
 
 .pre
 	mulu	k_mastervolume+kplbase(a5),d1
@@ -25377,6 +25461,8 @@ siirra_moduuli2
 
 *************
 
+ ifne hardware_poking_enabled
+
 dmawait
 	pushm	d0/d1
 	moveq	#12-1,d1
@@ -25400,15 +25486,31 @@ dmawait
 
 clearsound
 	pushm	d0/a0
-	lea	$dff096,a0
-	move	#$f,(a0)
+	lea	CUSTOM,a0		
+	move	#$f,DMACON(a0)
 	moveq	#0,d0
-	move	d0,$a8-$96(a0)
-	move	d0,$b8-$96(a0)
-	move	d0,$c8-$96(a0)
-	move	d0,$d8-$96(a0)
+	move	d0,AUD0VOL(a0)
+	move	d0,AUD1VOL(a0)	
+	move	d0,AUD2VOL(a0)	
+	move	d0,AUD3VOL(a0)	
 	popm	d0/a0
 	rts
+
+ endif
+
+ ifeq hardware_poking_enabled
+
+dmawait
+	move.l	#text_dmawait,_out_text
+	jsr	print_text
+	rts
+
+clearsound
+	move.l	#text_clearsound,_out_text
+	jsr	print_text
+	rts
+
+ endif
 
 
 ******************************************************************************
@@ -25929,8 +26031,8 @@ modlen
 
 .mt_PositionJump
 	push	d1
-	MOVE.B	.mt_SongPos(a5),D1		* hyv‰ksyt‰‰n jos jumppi
-	addq.b	#1,d1				* viimeisess‰ patternissa
+	MOVE.B	.mt_SongPos(a5),D1		* accepted if jumper
+	addq.b	#1,d1				* The last preset patterns
 	MOVE.L	.mt_SongDataPtr(a5),a0
 	cmp.b	950(a0),d1
 	bne.b	.nre
@@ -27976,7 +28078,7 @@ p_player
 
 .p60end
 	movem.l	d0-a6,-(sp)
-	lea	$dff000,a6
+	lea	CUSTOM,A6				; woot CUSTOM not used?
 	move.l	p60routines(a5),a0
 	jsr	P61_EndOffset(a0)
 
@@ -28045,7 +28147,7 @@ p_player
 	moveq	#0,d0
 	sub.l	a1,a1
 	move.l	player60samples(a5),a2
-	lea	$dff000,a6
+	lea	CUSTOM,A6
 	move.l	p60routines(a5),a3
 	jsr	P61_InitOffset(a3)
 	tst	d0
@@ -28507,12 +28609,30 @@ p_digibooster
 
 .stop
 	clr.b	.stopcont
-	move	#$f,$dff096
+
+ ifeq hardware_poking_enabled
+	move.l	#text_debug,_out_text
+	jsr	print_text
+ endif
+
+ ifne hardware_poking_enabled
+	move	#$f,CUSTOM+DMACON				; disable
+ endif
+
 	rts
 
 .cont
 	st	.stopcont
-	move	#$800f,$dff096
+
+ ifeq hardware_poking_enabled
+	move.l	#text_debug,_out_text
+	jsr	print_text
+ endif
+
+ ifeq hardware_poking_enabled
+	move	#$800f,CUSTOM+DMACON			; enable 
+ endif
+
 	rts
 
 
@@ -28834,10 +28954,28 @@ p_thx
 
 
 .stop
-	move	#$f,$dff096
+
+ ifeq hardware_poking_enabled
+	move.l	#text_debug,_out_text
+	jsr	print_text
+ endif
+
+ ifne hardware_poking_enabled
+	move	#$f,CUSTOM+DMACON
+ endif
 	bra.b	.sc
 
-.cont	move	#$800f,$dff096
+.cont
+
+ ifeq hardware_poking_enabled
+	move.l	#text_debug,_out_text
+	jsr	print_text
+ endif
+
+ ifne hardware_poking_enabled
+	move	#$800f,CUSTOM+DMACON
+ endif
+
 .sc	move.l	thxroutines(a5),a0
 	move.l	.ahxBSS_P(a0),a0
 	not.b	.ahx_pPlaying(a0)
@@ -29170,12 +29308,12 @@ p_aon
 
 
 .stop
-	move	#$f,$dff096
+	move	#$f,CUSTOM+DMACON
 	bclr	#0,$bfdf00
 	rts
 
 .cont	
-	move	#$800f,$dff096
+	move	#$800f,CUSTOM+DMACON
 	bset	#0,$bfdf00	; Timer start, stop
 	rts
 
@@ -29320,8 +29458,19 @@ p_multi	jmp	.s3init(pc)
 	bne.b	.nd
 	moveq	#64,d1
 	sub.b	stereofactor(a5),d1
-	move	d1,$dff0c8
-	move	d1,$dff0d8
+
+ ifne hardware_poking_enabled
+
+	move	d1,CUSTOM+AUD2VOL
+	move	d1,CUSTOM+AUD3VOL
+
+ else
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
+ endif
+
 .nd	popm	d1/a5
 	rts
 
