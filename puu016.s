@@ -1569,6 +1569,7 @@ DEBU	macro
  ifne hardware_poking_enabled
 
  ifne asm
+
 flash	
 .p	move	$dff006,$dff180
 	btst	#6,$bfe001
@@ -1576,9 +1577,7 @@ flash
 	rts
  endc
 
- endif
-
- ifeq hardware_poking_enabled
+else
 
 flash
 	rts
@@ -5978,9 +5977,7 @@ srand
         move.l  d0,seed(a5)
         rts
 
- endif
-
- ifeq hardware_poking_enabled
+ else
  
 srand
 	; should compile a C program and se what it does.
@@ -17459,13 +17456,6 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 
 ;	--- THIS LOOKS MONO CAN'T BE WHAT I'M LOOKING FOR ---
 
- ifeq hardware_poking_enabled
-
-	move.l	#text_debug,_out_text
-	jsr	print_text
-
- endif
-
  ifne hardware_poking_enabled
 
 	lea	CUSTOM,a3
@@ -17488,6 +17478,11 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 	move	d1,AUD2LEN(a3)
 	move	d1,AUD3LEN(a3)
 
+ else
+
+	move.l	#text_debug,_out_text
+	jsr	print_text
+
  endif
 
 ** perioidi mousen x-koordinaatista
@@ -17504,13 +17499,9 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 	move	d5,AUD2PER(a3)
 	move	d5,AUD3PER(a3)
 
- endif
-
 	lore	GFX,WaitTOF
-	move	#$800f,(a3)
+	move	#$800f,CUSTOM+DMACON			; enable 
 	lob	WaitTOF
-
- ifne hardware_poking_enabled
 
 	move.l	d2,AUD0LCH(a3)
 	move.l	d2,AUD1LCH(a3)
@@ -17522,7 +17513,13 @@ sidcmpflags set sidcmpflags!IDCMP_MOUSEBUTTONS
 	move	d3,AUD2LEN(a3)
 	move	d3,AUD3LEN(a3)
 
+ else
+
+	lore	GFX,WaitTOF
+	lob	WaitTOF
+
  endif
+
 
 	bra.w	.msgloop
 
@@ -17657,6 +17654,7 @@ print_text
 
 	move.l	#printf_args,A1
 
+	move.l	(sp),(A1)+		; I think this should return program counter before jsr print_text
 	move.l	_out_text,(A1)+
 	move.l	D0,(A1)+
 	move.l	D1,(A1)+
@@ -17923,7 +17921,11 @@ text_DoIO				dc.b	"DoIO(A1)",0
 text_SendIO			dc.b	"SendIO(A1)",0
 text_blitter_missing 	dc.b "Blitter missing",0
 
+text_disable_CUSTOM_DMACON	dc.b "Disable CUSTOM_DMACON",0
+text_enable_CUSTOM_DMACON	dc.b "Enable CUSTOM_DMACON",0
+
 text_delete_io_request		dc.b "delete io request",0
+
 
 text_mem_dump	dc.b	"mem dump",10,0
 
@@ -17936,7 +17938,7 @@ DUMP_FMT		dc.b	" %08lx",0
 
 NEW_LINE		dc.b	10,0
 
-PRINT_FMT		dc.b	"%s:",10
+PRINT_FMT		dc.b	"PC %08lx - %s:",10
 				dc.b	"D0 %08lx D1 %08lx D2 %08lx D3 %08lx D4 %08lx D5 %08lx D6 %08lx D7 %08lx",10
 				dc.b	"A0 %08lx A1 %08lx A2 %08lx A3 %08lx A4 %08lx A5 %08lx A6 %08lx A7 %08lx",10
 				dc.b	10,0
@@ -17946,7 +17948,7 @@ PRINT_FMT		dc.b	"%s:",10
 
 _out_text			dc.l 0
 
-printf_args		ds.l	17
+printf_args		ds.l	18
 
 _lost_D0			dc.l 0
 _lost_D1			dc.l 0
@@ -19719,20 +19721,28 @@ voltab3
 dung
 
 	move.l	_GFXBase(a5),a6
-	lob	OwnBlitter
-	lob	WaitBlit
 
  ifne hardware_poking_enabled
 
-	lea	CUSTOM+$058,a0
-	move.l	draw2(a5),$54-$58(a0)	* tyhjennet‰‰n piirtoalue
-	move	#0,$66-$58(a0)
-	move.l	#$01000000,$40-$58(a0)
-	move	#64*64+20,(a0)
+	lob	OwnBlitter
+	lob	WaitBlit
+	lea	CUSTOM,a0
+	move.l	draw2(a5),$54(a0)		; emptied the drawing area
+	move	#0,$66(a0)
+	move.l	#$01000000,$40(a0)
+	move	#64*64+20,$58(a0)	; size in bytes?
+	lob	DisownBlitter
+
+ else
+	move.l	draw2(a5),a0		; I guess this is raw bytes.
+	move.l	#64*64+20,d0
+.top
+	move.b #0,(a0)+
+	sub #1,d0
+	cmpi #0,d0
+	bne		.top
 
  endif
-
-	lob	DisownBlitter
 
 	cmp	#pt_sample,playertype(a5)
 	bne.b	.toot
@@ -28610,13 +28620,15 @@ p_digibooster
 .stop
 	clr.b	.stopcont
 
- ifeq hardware_poking_enabled
-	move.l	#text_debug,_out_text
-	jsr	print_text
- endif
-
  ifne hardware_poking_enabled
+
 	move	#$f,CUSTOM+DMACON				; disable
+
+ else
+
+	move.l	#text_disable_CUSTOM_DMACON,_out_text
+	jsr	print_text
+
  endif
 
 	rts
@@ -28625,12 +28637,13 @@ p_digibooster
 	st	.stopcont
 
  ifeq hardware_poking_enabled
-	move.l	#text_debug,_out_text
-	jsr	print_text
- endif
 
- ifeq hardware_poking_enabled
 	move	#$800f,CUSTOM+DMACON			; enable 
+
+ else
+	move.l	#text_enable_CUSTOM_DMACON,_out_text
+	jsr	print_text
+
  endif
 
 	rts
@@ -28962,18 +28975,20 @@ p_thx
 
  ifne hardware_poking_enabled
 	move	#$f,CUSTOM+DMACON
+ else
+	move.l	#text_disable_CUSTOM_DMACON,_out_text
+	jsr	print_text
  endif
+
 	bra.b	.sc
 
 .cont
 
- ifeq hardware_poking_enabled
-	move.l	#text_debug,_out_text
-	jsr	print_text
- endif
-
  ifne hardware_poking_enabled
 	move	#$800f,CUSTOM+DMACON
+ else
+	move.l	#text_enable_CUSTOM_DMACON,_out_text
+	jsr	print_text
  endif
 
 .sc	move.l	thxroutines(a5),a0
@@ -29308,12 +29323,29 @@ p_aon
 
 
 .stop
+
+ ifne hardware_poking_enabled
 	move	#$f,CUSTOM+DMACON
+ else
+	move.l	#text_disable_CUSTOM_DMACON,_out_text
+	jsr	print_text
+ endif
+
 	bclr	#0,$bfdf00
 	rts
 
 .cont	
+
+ ifne hardware_poking_enabled
+
 	move	#$800f,CUSTOM+DMACON
+ else
+
+	move.l	#text_enable_CUSTOM_DMACON,_out_text
+	jsr	print_text
+
+ endif
+
 	bset	#0,$bfdf00	; Timer start, stop
 	rts
 
