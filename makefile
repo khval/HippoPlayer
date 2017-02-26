@@ -7,6 +7,8 @@ all:	keyfile.exe hippoplayer.exe copy_files
 
 clean:
 	delete objects/#?
+	delete kpl
+	delete #?.exe
 
 # compile programs
 
@@ -22,11 +24,10 @@ objects/puu016.o: puu016.s kpl
 		$(compiler)  -Iinclude -Fhunk -o objects/puu016.o puu016.s 
 
 kpl: 	kpl14.s 
-		$(compiler)  -Iinclude -Fhunk -o kpl kpl14.s 
-
+		$(compiler)  -Iinclude -Fbin -o kpl kpl14.s 
 
 objects/keyfile0.o: keyfile0.s
-		c/vasmm68k_mot -Fhunk -o objects/keyfile0.o keyfile0.s
+		$(compiler)  -Iinclude -Fhunk -o objects/keyfile0.o keyfile0.s
 
 comment_log_file:
 		grep -n "\*[[:space:]]" puu016.s > comment.log
