@@ -4,8 +4,8 @@
 *******************************************************************************
 * Aloitettu 5.2.-94
 
-have_cia_timers = 0
-hardware_poking_enabled = 0
+ 	incdir	include:
+	include	config.i
 
 ver	macro
 ;	dc.b	"v2.30 (5.8.1996)"
@@ -178,6 +178,7 @@ use = 0
 	incdir ""
 
 	include	kpl_offsets.s
+
 
 ;*******************************************************************************
 ;*
@@ -1263,6 +1264,7 @@ progstart
 
 	bra.b	.eien
 
+	include 	paula.s
 
 CLIparms
 ;=======================================================================
@@ -17921,6 +17923,13 @@ text_DoIO				dc.b	"DoIO(A1)",0
 text_SendIO			dc.b	"SendIO(A1)",0
 text_blitter_missing 	dc.b "Blitter missing",0
 
+text_vol0 	dc.b "paula vol 0",0
+text_vol1 	dc.b "paula vol 1",0
+text_vol2 	dc.b "paula vol 2",0
+text_vol3 	dc.b "paula vol 3",0
+
+text_okta_player		dc.b "okta player"
+
 text_disable_CUSTOM_DMACON	dc.b "Disable CUSTOM_DMACON",0
 text_enable_CUSTOM_DMACON	dc.b "Enable CUSTOM_DMACON",0
 
@@ -19727,17 +19736,18 @@ dung
 	lob	OwnBlitter
 	lob	WaitBlit
 	lea	CUSTOM,a0
-	move.l	draw2(a5),$54(a0)		; emptied the drawing area
-	move	#0,$66(a0)
-	move.l	#$01000000,$40(a0)
-	move	#64*64+20,$58(a0)	; size in bytes?
+	move.l	draw2(a5),$54(a0)		; bltdpt = bitmap data planar
+	move	#0,$66(a0)			; bltdmod	= bytes to skip (before/after) image
+	move.l	#$01000000,$40(a0)	; bltcon0 = ?
+	move	#64*64+20,$58(a0)	; bltsize = width 64 (words) height 20 rows?
 	lob	DisownBlitter
 
  else
-	move.l	draw2(a5),a0		; I guess this is raw bytes.
-	move.l	#64*64+20,d0
+	move.l	draw2(a5),a0		; bitmap data planar
+	move.l	#64*2*20,d0		; 64 words per row = 128 bytes per row, 20 rows 
+	ror.l		#2,d0			; d0=d0/4 (unrol 4)
 .top
-	move.b #0,(a0)+
+	move.l #0,(a0)+
 	sub #1,d0
 	cmpi #0,d0
 	bne		.top
@@ -19896,17 +19906,11 @@ mirrorfill
 	moveq	#1,d7
 
 mirrorfill0
-	lore	GFX,OwnBlitter
-	lob	WaitBlit
-
- ifeq hardware_poking_enabled
-
-	move.l	#text_blitter_missing,_out_text
-	jsr	print_text
-
- endif
 
  ifne hardware_poking_enabled
+
+	lore	GFX,OwnBlitter
+	lob	WaitBlit
 
 	move.l	draw1(a5),a0
 	lea	$CUSTOM+$058,a2
@@ -19924,18 +19928,26 @@ mirrorfill0
 	move.l	#$0b5a0000,$40-$58(a2)	* D = A not C
 	move	#31*64+20,(a2)	
 
- endif
-
 	lea	63*40(a0),a1		* kopioidaan
 	lob	WaitBlit
+
 	movem.l	a0/a1,$50-$58(a2)
 	move	#-80,$66-$58(a2) 	* D
+
 	move.l	#$09f00000,$40-$58(a2)
 	move	#32*64+20,(a2)	
 
 	tst.b	d7
 	beq.b	.x
 	lob	DisownBlitter
+
+else
+
+	move.l	#text_blitter_missing,_out_text
+	jsr	print_text
+
+ endif
+
 .x	rts
 
 
@@ -20236,31 +20248,52 @@ freqscope
 
 * Pystyfillaus
 
-; what ever its suppose to do this wont work on AmigaOS4
-
  ifne hardware_poking_enabled
 
 	lore	GFX,OwnBlitter
 
 	move.l	draw1(a5),a0
-	addq	#2,a0
-	moveq	#2,d0
-	lea	40(a0),a1
+	addq	#2,a0							; x offset 2 bytes from source
+	moveq	#2,d0							; copy skips 2 bytes per row.
+	lea	40(a0),a1								; dest bitmap
 	lea	CUSTOM,A2
 
 	lob	WaitBlit
-	move.l	a0,$50(a2)	* A
-	move.l	a1,$48(a2)	* C
-	move.l	a1,$54(a2)	* D
-	move	d0,$60(a2)	* C
-	move	d0,$64(a2)	* A
-	move	d0,$66(a2)	* D
-	move.l	#-1,$44(a2)
-	move.l	#$0b5a0000,$40(a2)	* D = A not C
-	move	#65*64+19,$58(a2)
+	move.l	a0,$50(a2)	* A					; bltapt		; src a
+	move.l	a1,$48(a2)	* C					; bltcpt		; src c
+	move.l	a1,$54(a2)	* D					; bltdpt		; dest
+	move	d0,$60(a2)	* C					; bltcmod
+	move	d0,$64(a2)	* A					; bltamod
+	move	d0,$66(a2)	* D					; bltdmod
+	move.l	#-1,$44(a2)						; bltafwm
+	move.l	#$0b5a0000,$40(a2)	; D = A not C	; bltcon0
+	move	#65*64+19,$58(a2)				; bltsize 65 words, height 19
 
 	lob	WaitBlit
 	jmp	_LVODisownBlitter(a6)
+
+else
+
+;  I think this should work like Blitter :-)
+
+	move.l	draw1(a5),a0
+	addq	#2,a0							; x offset 2 bytes from source
+	moveq	#2,d0							; copy skips 2 bytes per row.
+	lea	40(a0),a1								; dest bitmap
+
+	move.l #19,d2		; 19 rows
+.nextrow
+	move.l #65,d1		; 65 words per row
+	sub.l d0,d1		; but only copy the image, not extra bytes.
+.copyrow
+	move.w	(a0)+,(a1)+	; copy words
+	sub.l #1,d1
+	cmpi.l	#0,d1
+	bne .copyrow
+	add.l d0,a0		; skip bytes from source
+	sub.l #1,d2
+	cmpi.l	#0.d2
+	bne .nextrow
 
  endif
 
@@ -25498,11 +25531,9 @@ clearsound
 	pushm	d0/a0
 	lea	CUSTOM,a0		
 	move	#$f,DMACON(a0)
-	moveq	#0,d0
-	move	d0,AUD0VOL(a0)
-	move	d0,AUD1VOL(a0)	
-	move	d0,AUD2VOL(a0)	
-	move	d0,AUD3VOL(a0)	
+
+	jsr	paula_mute
+
 	popm	d0/a0
 	rts
 
@@ -25516,8 +25547,7 @@ dmawait
 	rts
 
 clearsound
-	move.l	#text_clearsound,_out_text
-	jsr	print_text
+	jsr	paula_mute
 	rts
 
  endif
@@ -29894,7 +29924,12 @@ p_sample
 
 
 		incdir ""
-kplayer		incbin	kpl
+
+;		include "kpl14.s"
+
+kplayer
+		incbin	"kpl.org"
+
 		;incdir	asm:player/pl/
 
 
