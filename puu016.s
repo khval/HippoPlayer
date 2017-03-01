@@ -29925,10 +29925,8 @@ p_sample
 
 		incdir ""
 
-;		include "kpl14.s"
-
 kplayer
-		incbin	"kpl.org"
+		incbin	"kpl"
 
 		;incdir	asm:player/pl/
 
