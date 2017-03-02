@@ -8,6 +8,12 @@ Tools used in development:
   * fimp file compressor, available here: http://aminet.net/util/pack/imploder-4.0.lzh
   * Gadget's Editor by Stefano Crimì (included without permission)
 
+Or you can compile it with vasm
+
+   You need a newer vasm then one If your going to compile under 680x0.
+
+
+
 # Files and directories
 
 * puu016.s: The main very small source file 
@@ -22,7 +28,26 @@ Tools used in development:
 * Include: Some needed include files.
 * gfx: The hippo logo
 
-# Build instructions
+
+
+# new Build instructions for vasm
+
+make all 
+
+Create all executables and modules.
+
+make clean 
+
+Deletes all the executables and modules.
+
+Edit the makefile to make adjustments.
+
+To build individual replay routines, assemble one in the _pl_-directory, write out the binary
+and compress it with fimp, then re-create the group file.
+
+
+
+# Build instructions for ASMPro
 
 The standard include files will be searched from _include:_ directory, these are not included.
 Some custom includes and some others are included.
@@ -37,6 +62,8 @@ To build the Protracker replay routine, assemble the file _kpl14.s_ and write ou
 
 To build individual replay routines, assemble one in the _pl_-directory, write out the binary
 and compress it with fimp, then re-create the group file.
+
+
 
 # Notes
 
