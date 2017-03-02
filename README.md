@@ -11,8 +11,11 @@ Tools used in development:
 Or you can compile it with vasm
 
    You need a newer vasm then one If your going to compile under 680x0.
+   Default assembler is a cross compiler for AmigaOS4.
 
-
+* fimp file compressor, available here: http://aminet.net/util/pack/imploder-4.0.lzh
+   NB! under AmigaOS 4.x, you need to run fimp under UAE, don't use the JIT version of UAE it crashed for me,
+   when trying to save the file.
 
 # Files and directories
 
