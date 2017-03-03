@@ -60,25 +60,42 @@
 
 	lea	main(pc),a2
 	lea	maine(pc),a3
-f	move.l	(a2),d2
-	beq.b	.bah
-	ror.l	d3,d2
-	swap	d2
-	add.l	#$a370,d2
-.bah	move.l	d2,(a2)+
-	addq	#1,d3
+
+; this looks like a encryption routine, you don't make it easy do you :-) LOL
+
+; Do { 
+
+f		move.l	(a2),d2		; get value from the A2 table
+		beq.b	.bah			; ok but we don't know the sate of flag before payergroup0.s do we?
+
+;		If ( A2 != A3)			; for etch unsigned long the data is shifted 1 bit more.
+;		{
+			ror.l	d3,d2
+			swap	d2		; data is swaped so number is hard to read.
+			add.l	#$a370,d2	; then some constat is added to d2
+;		}
+
+.bah		move.l	d2,(a2)+		; encrped version of D2 is then saved into (A2), A2++
+		addq	#1,d3
+
+; } while (A2 < A3);
+
 	cmp.l	a3,a2
 	bne.b	f
-	
 
+; --- exit rts ---
 
 	rts
 
+
+; 
 
 
 	incdir	pl/
 
 start	dc.b	"HiPxPla",20	* Tunnistus ja versio
+
+; start of main
 
 main	
 	dc.l	ps3mdata-main,tfmxdata-ps3mdata
@@ -119,7 +136,7 @@ mulu_32	movem.l	d2/d3,-(sp)
 ;	rts	
 
 
-maine
+maine		; So this is the end of main
 
 	dc.b	"$VER: 20",0
 	even
