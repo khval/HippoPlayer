@@ -13,7 +13,6 @@
 
 ier_ahi		=	-19
 
-testi	=	0
 
 * d0 = songnumber
 * d1 = modulelength

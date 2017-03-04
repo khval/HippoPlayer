@@ -8,10 +8,7 @@
 ;ASM-ONE 1.20 or newer is required unless disable020 is set to 1, when
 ;at least 1.09 (haven't tried older) is sufficient.
 
-have_cia_timers = 0
-
 CHECKCRC	=	$FB289E39	; tekstien tarkistussumma
-
 
 MONO = 1
 STEREO = 2

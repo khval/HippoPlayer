@@ -1,4 +1,3 @@
-testi = 0
 
 
  ifne testi
