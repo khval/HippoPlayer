@@ -5,7 +5,7 @@
 * Aloitettu 5.2.-94
 
  	incdir	include:
-	include	config.i
+
 
 ver	macro
 ;	dc.b	"v2.30 (5.8.1996)"
@@ -2181,7 +2181,7 @@ main
 	move	#15600,horizfreq(a5)
 	move	#50,vertfreq(a5)
 	
-	bsr.w	srand			; randomgeneratorin seed!
+	bsr.w	srand			; random generator seed!
 
 
 
@@ -2190,7 +2190,7 @@ main
 	beq.b	.nohide
 	move.l	(a3),a0
 	bsr.w	kirjainta4
-	cmp.l	#"HIDE",d0		; oliko komento 'HIDE'??
+	cmp.l	#"HIDE",d0		; whether the command to 'HIDE' ??
 	bne.b	.nohide
 	clr.b	win(a5)
 	bra.b	.hid
@@ -2198,7 +2198,7 @@ main
 	bsr.w	get_rt
 
 	st	win(a5)
-	bsr.w	avaa_ikkuna		; palauttaa d4:ss‰ keycheckin~
+	bsr.w	avaa_ikkuna		; restore d4 keycheckin ~
 	beq.b	.go3
 	clr.b	win(a5)
 	move.b	#i_nowindow,startuperror(a5)
@@ -2215,12 +2215,12 @@ main
 	bsr.w	inforivit_clear
 
 
-	tst.b	groupmode(a5)			; ladataanko playergrouppi?
+	tst.b	groupmode(a5)			; playergrouppi to load?
 	bne.b	.purr
 	jsr	loadplayergroup
 	move.l	d0,externalplayers(a5)
 ;	bne.b	.purr
-;	lea	grouperror_t,a1			; ei valiteta vaikka ei lˆydykk‰‰n
+;	lea	grouperror_t,a1			; we do not complain even if is not found
 ;	bsr.w	request
 
 ; ladataan playerlibitkin samantien
@@ -5334,16 +5334,16 @@ buttonspressed
 	cmp	#MENUDOWN,d3		; oikea
 	bne.w	returnmsg
 
-* Oikeata nappulaa painettu. Tutkitaan oliko rmbfunktio-nappuloiden p‰‰ll‰
+* Right knob pressed. Examine whether rmbfunktio-pieces on top
 
-	tst.b	kokolippu(a5)		; onko pienen‰?
+	tst.b	kokolippu(a5)		; whether small?
 	beq.w	.nowindow
 
-** onko lootan p‰‰ll‰
+** whether the site Lotan
 	move	mousex(a5),d0
 	move	mousey(a5),d1
 	sub	windowleft(a5),d0
-	sub	windowtop(a5),d1	; suhteutus fonttiin
+	sub	windowtop(a5),d1	; Scale with font
 
 	cmp	#7+WINX,d0
 	blo.b	.y
@@ -5354,11 +5354,11 @@ buttonspressed
 	cmp	#30+WINY,d1
 	bhi.b	.y
 
-	tst	quad_prosessi(a5)	; jos ei ollu, p‰‰lle
+	tst	quad_prosessi(a5)	; if you did not have, on
 	bne.b	.rew
 	bsr.w	start_quad		
 	bra.w	returnmsg
-.rew	bsr.w	sulje_quad		; suljetaan jos oli auki
+.rew	bsr.w	sulje_quad		; closed if the open
 	bra.w	returnmsg
 .y
 
@@ -5439,7 +5439,7 @@ buttonspressed
 
 	tst.b	uusikick(a5)
 	bne.b	.new
-	bsr.w	sulje_ikkuna		; Vaihdetaan ikkunan kokoa (kick1.3)
+	bsr.w	sulje_ikkuna		; Swap size of the window (kick1.3)
 	bsr.w	avaa_ikkuna
 	bra.w	returnmsg
 
@@ -5452,11 +5452,11 @@ buttonspressed
 ;	tst	modamount(a5)
 ;	beq.w	returnmsg
 
-* jos oli lootan p‰‰ll‰ niin avataan info ikkuna!
+* if you were on top of Lotan then opened info window!
 	move	mousex(a5),d0
 	move	mousey(a5),d1
 	sub	windowleft(a5),d0
-	sub	windowtop(a5),d1	; suhteutus fonttiin
+	sub	windowtop(a5),d1	; Scale with font
 
 	cmp	#7+WINX,d0
 	blo.b	.x
@@ -5467,17 +5467,17 @@ buttonspressed
 	cmp	#30+WINY,d1
 	blo.b	.yea
 
-.x	bsr.w	markline		; merkit‰‰n modulenimi
+.x	bsr.w	markline		; marked module name
 	bra.w	returnmsg
 
 .yea
 
-** modinfon infon avaus
+** modinfon info Opening
 	bsr.b	modinfoaaa
 	bra.w	returnmsg
 
 
-*** tutkitaan hiiren napin painamista gadgetin p‰‰llÊ
+*** exploring pressing the mouse button gadget on its head
 .namiska
 	move	mousex(a5),d6
 	move	mousey(a5),d7
@@ -17802,22 +17802,22 @@ init_error
 	bra.w	inforivit_initerror
 
 
-.ertab	dr	ier_error_t
-	dr	ier_nochannels_t
-	dr	ier_nociaints_t
-	dr	ier_noaudints_t
-	dr	ier_nomedplayerlib_t
-	dr	ier_nomedplayerlib2_t
-	dr	ier_mederr_t
-	dr	ier_playererr_t
-	dr	memerror_t
-	dr	ier_nosid_t
-	dr	ier_sidicon_t
-	dr	ier_sidinit_t
-	dr	ier_nopr_t
-	dr	nochip_t
-	dr	unknown_t
-	dr	grouperror_t
+.ertab	dr	ier_error_t		; 0
+	dr	ier_nochannels_t		; 2
+	dr	ier_nociaints_t			; 4
+	dr	ier_noaudints_t		; 6
+	dr	ier_nomedplayerlib_t	; 8
+	dr	ier_nomedplayerlib2_t	; 10
+	dr	ier_mederr_t			; 12
+	dr	ier_playererr_t			; 14
+	dr	memerror_t			; 16
+	dr	ier_nosid_t			; 18
+	dr	ier_sidicon_t			; 20
+	dr	ier_sidinit_t			; 22
+	dr	ier_nopr_t			; 24
+	dr	nochip_t				; 26
+	dr	unknown_t			; 28
+	dr	grouperror_t			; 30 - 2 = 28
 	dr	filerr_t
 	dr	hardware_t
 	dr	ahi_t
@@ -17922,6 +17922,9 @@ text_WaitIO			dc.b	"WaitIO(A1)",0
 text_DoIO				dc.b	"DoIO(A1)",0
 text_SendIO			dc.b	"SendIO(A1)",0
 text_blitter_missing 	dc.b "Blitter missing",0
+text_delete_io_request		dc.b "delete io request",0
+
+text_load_error		dc.b "load error",0
 
 text_vol0 	dc.b "paula vol 0",0
 text_vol1 	dc.b "paula vol 1",0
@@ -17933,7 +17936,6 @@ text_okta_player		dc.b "okta player"
 text_disable_CUSTOM_DMACON	dc.b "Disable CUSTOM_DMACON",0
 text_enable_CUSTOM_DMACON	dc.b "Enable CUSTOM_DMACON",0
 
-text_delete_io_request		dc.b "delete io request",0
 
 
 text_mem_dump	dc.b	"mem dump",10,0
@@ -21534,12 +21536,12 @@ loadmodule
 	bne.b	.cop
 
 	jsr	freemodule
-	jsr	rbutton9		* lista tyhj‰ks
+	jsr	rbutton9				* lista tyhj‰ks
 	move	#-1,playingmodule(a5)
 
 	move.l	sp,a0			* ohjelman nimi
 	moveq	#-1,d4			* lippu
-	bsr.w	loadprog		* ladataan moduuliohjelma
+	bsr.w	loadprog			* ladataan moduuliohjelma
 	lea	150+4(sp),sp
 ;	addq	#4,sp			* ei palata samaan aliohjelmaan!
 	rts
@@ -21549,19 +21551,19 @@ loadmodule
 
 	bsr.w	tutki_moduuli
 	tst.l	d0
-	bne.b	.unk_err		* ep‰m‰‰r‰inen tiedosto
+	bne.b	.unk_err			* ep‰m‰‰r‰inen tiedosto
 
 	clr.b	contonerr_laskuri(a5)	* nollataan virhelaskuri
 	rts	
 
-**** Virhe, ja pit‰isi ladata toinen moduuli.
+**** Error, and you should download the second module.
 .iik
 	cmp	#1,modamount(a5)
 	beq.b	loaderr
 
-	addq.b	#1,contonerr_laskuri(a5) 	* jos sattuu viisi per‰kk‰ist‰ 
-	cmp.b	#5,contonerr_laskuri(a5) 	* virhett‰, keskeytet‰‰n
-	bne.b	.iik2				* contonerror-toiminto
+	addq.b	#1,contonerr_laskuri(a5) 	* jif you happen to five consecutive
+	cmp.b	#5,contonerr_laskuri(a5) 	* errors, suspended
+	bne.b	.iik2				* contonerror function
 	clr.b	contonerr_laskuri(a5)
 	bra.b	loaderr
 .iik2
@@ -21571,9 +21573,9 @@ loadmodule
 	lore	Dos,Delay
 
 	move	#-1,playingmodule(a5)
-	moveq	#1,d7			* seuraava piisi!
+	moveq	#1,d7			* next song!
 	jsr	soitamodi
-	addq	#4,sp			* ei samaan paluuosoitteeseen!
+	addq	#4,sp			* not the same return address!
 	rts
 
 
@@ -21586,6 +21588,10 @@ loadmodule
 	tst.b	contonerr(a5)		* Continue on error?
 	bne.b	.iik
 loaderr
+
+	move.l	#text_load_error,_out_text
+	jsr	print_text
+
 	cmp	#lod_xpkerr,d0
 	beq.w	xpkvirhe
 	cmp	#lod_xfderr,d0
@@ -21600,13 +21606,13 @@ loaderr
 	add	(a1),a1
 	bra.w	request			* requesteri
 
-.ertab2	dr	openerror_t
-	dr	readerror_t
-	dr	memerror_t
-	dr	cryptederror_t
-	dr	error_t
-	dr	unknownpperror_t
-	dr	grouperror_t
+.ertab2	dr	openerror_t		;0
+	dr	readerror_t			;2 - 2 = 0
+	dr	memerror_t			;4 - 2 = 2
+	dr	cryptederror_t			;6 - 2 = 4
+	dr	error_t				;8 - 2 = 6
+	dr	unknownpperror_t		;10 -2 = 8
+	dr	grouperror_t			;12 -2 = 10
 	dr	noxpkerror_t
 	dr	nopperror_t
 	dr	error_t		* xpk errori muualla
@@ -24949,15 +24955,25 @@ loadreplayer
 	beq.b	.error		; Onko koko playeri‰ filess‰?
 
 * d3k0dez!
-	sub.l	#$a370,d2
-	swap	d2
-	rol.l	d1,d2	
-	addq	#1,d1
-	sub.l	#$a370,d6
+
+ ifne use_decrypt
+
+	sub.l	#$a370,d2		; this is a decoder,  
+	swap	d2			; fix d2
+	rol.l	d1,d2			; rol back
+	addq	#1,d1		; 
+
+	sub.l	#$a370,d6		
 	swap	d6	
 	rol.l	d1,d6
-
 	addq	#8,d2		* headerin ohi
+
+  else
+
+	; D2 = player offset
+	; D6 = player length
+
+  endif
 
 	move.l	d6,xlen(a5)	* pituus talteen
 
@@ -25333,6 +25349,8 @@ are
 	beq.b	.xab
 
 * d3k0dez!
+
+ ifne use_decrypt
 	sub.l	#$a370,d0
 	swap	d0
 	rol.l	d1,d0
@@ -25340,7 +25358,10 @@ are
 	sub.l	#$a370,d7
 	swap	d7
 	rol.l	d1,d7
-
+ else
+	; D0 = player
+	; D7= offset
+ endif
 
 	lea     (a4,d0.l),a1
 
@@ -25358,15 +25379,20 @@ are
 	moveq	#ier_nomem,d0
 	rts
 
-.ok2	move.l	d0,a1
-	move.l	a4,a0
-	move.l	d7,d0
+.ok2	move.l	d0,a1	; Dest
+	move.l	a4,a0	; source
+	move.l	d7,d0	; Size
 	lore	Exec,CopyMem	
-	move.l	(a3),a0
-	move.l	#$5371a26,d0
-	add.l	d0,(a0)
-	sub.l	d0,4(a0)
+	move.l	(a3),a0			
+	move.l	#$5371a26,d0	
+	add.l	d0,(a0)				; save #$5371a26 into (a0)
+	sub.l	d0,4(a0)				; save #$5371a26 into (4+a0)
+
+	; A0 get's trashed by fimp_decr
+
 	bsr.w	fimp_decr
+
+	; A0 get restored from (A3)
 
 	move.l	(a3),a0
 	cmp.l	#$000003f3,(a0)
@@ -26516,8 +26542,8 @@ init_sidpatch
 * T‰nne v‰liin h‰m‰‰v‰sti
 
 *******************************************************************************
-* Tarkistaa keyfilen. Muuttaa rekisterˆij‰n nimen tekstiksi ja palauttaa
-* keycheck(a5):ss‰ nollan, jos aito.
+* Check keyfile. Change the registration name and return to text
+* keycheck(a5): in zero, if genuine.
 *******
 
 check_keyfile
@@ -29440,8 +29466,11 @@ p_multi	jmp	.s3init(pc)
 .ok2	bsr.w	rem_ciaint
 
 
-	lea	ps3mroutines(a5),a0
-	bsr.w	allocreplayer
+;	lea	ps3mroutines(a5),a0
+;	bsr.w	allocreplayer
+
+	move.l	AHIPLayer,ps3mroutines(a5)			; player inserted here,
+
 	beq.b	.ok3
 	rts
 
@@ -29452,7 +29481,7 @@ p_multi	jmp	.s3init(pc)
 	move	mixirate+2(a5),hip_ps3mrate+hippoport(a5)
 
 
-* v‰litet‰‰n tietoa ps3m:lle ja hankitaan sit‰ silt‰
+* the relaying of information ps3m for and acquired it in
 
 	move.b	cybercalibration(a5),d0
 	move.l	calibrationaddr(a5),d1
@@ -29472,7 +29501,7 @@ p_multi	jmp	.s3init(pc)
 	move.l	ps3mroutines(a5),a6
 	jsr	init1j(a6)
 
-	pushpea	CHECKSTART,d0		; tarkistussummaa varten
+	pushpea	CHECKSTART,d0		; for the checksum
 	lea	ps3m_buff1(a5),a0
 	lea	ps3m_buff2(a5),a1
 	lea	ps3m_mixingperiod(a5),a2
@@ -29490,26 +29519,26 @@ p_multi	jmp	.s3init(pc)
 	move.b	s3mmode2(a5),d3		; mono/stereo/surround
 	move.b	s3mmode1(a5),d4		; priority/killer
 
-	move.l	moduleaddress(a5),d2	; moduuli
+	move.l	moduleaddress(a5),d2	; module
 
 	move.b	ps3mb(a5),d5			; mixing buffer size
 	lea	playing(a5),a0				; stop/cont-lippu
 	lea	inforivit_killerps3m,a1		; killer ps3m viesti
 	lea	mainvolume(a5),a2			; voluumi
 	move.l	_DosBase(a5),a3
-	lea	songover(a5),a4			; kappale loppuu-lippu
+	lea	songover(a5),a4			; the song ends, the flag
 	move.l	_GFXBase(a5),a6
-	pushpea	pos_nykyinen(a5),d6	; songpos -osoite
-	pushpea	.adjustroutine(pc),d7	; asetusten s‰‰tˆrutiini
+	pushpea	pos_nykyinen(a5),d6	; songpos address
+	pushpea	.adjustroutine(pc),d7	; adjustment routine settings
 	move.l	ps3mroutines(a5),a5
-	pea	.updateps3m3(pc)			; updaterutiini, surroundin stereo
+	pea	.updateps3m3(pc)			; update routine in surround stereo
 	jsr	init0j(a5)
 	addq	#4,sp
 
 	popm	d1-a6
-	cmp	#333,d0					; killermoden koodi
+	cmp	#333,d0					; killer moden code
 	bne.b	.e
-	addq	#4,sp				; killer: hyp‰t‰‰n play-aliohjelman 'ohi'
+	addq	#4,sp				; killer: the play jump subroutine 'over'
 .e	rts
 
 
@@ -29560,21 +29589,21 @@ p_multi	jmp	.s3init(pc)
 	jmp	taaksej(a0)
 
 
-******** Asetukset kanavam‰‰r‰n mukaan
-* t‰nne hyp‰t‰‰n initin j‰lkeen. d0:ssa on kanavien m‰‰r‰.
+******** Setup the channel number of
+* To jump after initin. d0: C is the number of channels.
 
 .adjustroutine
 	pushm	d2/d6-a6
 	lea	var_b,a5
-	moveq	#0,d6			; -1: vaikuttaa, 0: ei vaikuta
-	cmp	#1,ps3minitcount		; asetustiedosto vaikuttaa vain
-	bne.w	.xei				; ensimm‰iseen inittiin latauksen
-							; j‰lkeen
+	moveq	#0,d6			; -1: Affect, 0: does not affect the
+	cmp	#1,ps3minitcount		; configuration file affects only
+	bne.w	.xei				; the first charging inittiin
+							; after
 
-	tst.b	ps3msettings(a5)		; k‰ytet‰‰nkˆ vai ei?
+	tst.b	ps3msettings(a5)		; whether or not to use?
 	beq.w	.xei
 
-	move	d0,d7			; kanavien m‰‰r‰
+	move	d0,d7			; Number of channels
 
 	move.l	ps3msettingsfile(a5),d0
 	beq.w	.xei
@@ -29583,16 +29612,16 @@ p_multi	jmp	.s3init(pc)
 
 	moveq	#-1,d6
 
-	lea	32*13(a0),a1			; file asetukset t‰‰ll‰
+	lea	32*13(a0),a1			; file settings here
 
-	move	d7,d0			; ensin asetukset kanavataulukosta
+	move	d7,d0			; first channel settings table
 	subq	#1,d0
 	mulu	#13,d0
 	add	d0,a0
 	addq	#3,a0
 	bsr.w	.gets
 
-	move.l	a1,a0			; t‰htirivien ohi
+	move.l	a1,a0			; Start rows over
 	bsr.w	.tah
 
 	move.l	solename(a5),a1
@@ -29604,7 +29633,7 @@ p_multi	jmp	.s3init(pc)
 
 .filel
 	addq	#1,a0
-	cmp.b	#'¯',(a0)			; loppumerkki?
+	cmp.b	#'¯',(a0)			; the end of the character?
 	beq.b	.golly
 	move	d2,d5
 	subq	#1,d5
@@ -29625,7 +29654,7 @@ p_multi	jmp	.s3init(pc)
 
 
 
-***** nappulat prefsiss‰
+***** joint press buttons
 	pushm	all
 	move.l	mixirate(a5),d0
 	sub.l	#5000,d0
@@ -29920,6 +29949,7 @@ p_sample
 	jmp	.s_ahiup(a0)
 
 *******************************************************************************
+
 * Playereit‰
 
 
@@ -29933,6 +29963,8 @@ kplayer
 
 fimp_decr	incbin	fimp_dec.bin
 
+AHIPLayer
+		incbin	"pl2/Hippo_PS3M3.o"
 
 
 xpkname		dc.b	"xpkmaster.library",0
