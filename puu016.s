@@ -24,6 +24,9 @@ ver	macro
 
 DMACON EQU $096
 
+
+khv_has_disabled_this = 1
+
 DEBUG	= 1
 BETA	= 0	; 0: ei beta, 1: public beta, 2: private beta
 
@@ -402,7 +405,7 @@ windowtopb	rs	1
 gotscreeninfo	rs.b	1
 infolag		rs.b	1	; mit‰ n‰ytet‰‰n infoikkunassa: 0=sample, ~0=about
 
-infotaz		rs.l	1	; infoikkunan datan osoite
+infotaz		rs.l	1	; info window data address
 
 windowtop2	rs	1
 windowleft2	rs	1
@@ -411,24 +414,24 @@ windowbottom2	rs	1
 
 nilfile		rs.l	1		; NIL:
 
-keycheckroutine	rs.l	1	; check_keyfile rutiinin osoite
+keycheckroutine	rs.l	1	; check_keyfile routine address
 
-pen_0		rs.l	1		; piirtokyn‰t
+pen_0		rs.l	1		; drawing pens
 pen_1		rs.l	1
 pen_2		rs.l	1
 pen_3		rs.l	1
 
-WINSIZX		rs	1		; p‰‰ikkunan koot
+WINSIZX		rs	1		; the main window sizes
 WINSIZY		rs	1
 
 eicheck		rs.b	1
-reghippo	rs.b 	1 		; ensimm‰inen hippo hieman sivummalle
+reghippo	rs.b 	1 		; first hippo slightly aside
 
 req_file	rs.l	1		; p‰‰requesteri
 req_file2	rs.l	1		; load/save program
 req_file3	rs.l	1		; prefs
 kokolippu	rs	1		; 0: pieni
-wkork		rs	1	; korkeus-vertailu zipwindowille
+wkork		rs	1	; height-comparison zip for Windows
 windowpos	rs	2	; Ison ikkunan paikka
 windowpos2	rs	2	; Pienen ikkunan paikka
 windowpos22	rs	2	; ja koko
@@ -767,22 +770,22 @@ kanavatvarattu	rs	1	; 0: ei varattu, ei-0: varattu
 
 
 oldst			rs.b	1	; 0: pt modi, ~0: old soundtracker modi
-sidflag		rs.b	1	; songnumberin muuttamiseen
+sidflag		rs.b	1	; change songnumberin
 _l765		rs.b	1
 
-kelausnappi	rs.b	1	; 0 jos ei cia kelausta
+kelausnappi	rs.b	1	; 0 if not the cia winding
 kelausvauhti	rs.b	1	; 1 2x, 2: 4x
 do_early	rs.b	1
 
 
-externalplayers	rs.l	1	; ulkoisen soittorutiininivaskan osoite
+externalplayers	rs.l	1	; External call routine batch address
 
-external	rs.b	1	; lippu: tarvitaan xplayeri
-xtype	rs.b	1	; ladatun replayerin tyyppi
-xplayer	rs.l	1	; osote
-xlen		rs.l	1	; pakattupituus
+external	rs.b	1	; Flag: the need for xplayeri
+xtype	rs.b	1	; Type loaded in the Replayer
+xplayer	rs.l	1	; address
+xlen		rs.l	1	; packed length
 
-ps3msettingsfile	rs.l	1	; ps3m settings filen osoite
+ps3msettingsfile	rs.l	1	; ps3m settings filen address
 calibrationaddr		rs.l	1	; CyberSound 14-bit calibration table
 
 sampleroutines	rs.l	0
@@ -799,14 +802,14 @@ fc10routines	rs.l	0
 jamroutines	rs.l	0
 p60routines	rs.l	0
 tfmxroutines	rs.l	0
-tfmx7routines	rs.l	1	; Soittorutiini purettuna (TFMX 7ch)
-player60samples	rs.l	1	; P60A:n samplejen osoite
-tfmxsamplesaddr	rs.l	1	; TFMX:n samplejen osoite
-tfmxsampleslen	rs.l	1	; TFMX:n samplejen pituus
+tfmx7routines	rs.l	1	; Call Routine disassembled (TFMX 7ch)
+player60samples	rs.l	1	; P60A:n samples address
+tfmxsamplesaddr	rs.l	1	; TFMX:n samples address
+tfmxsampleslen	rs.l	1	; TFMX:n length samples
 medrelocced	rs.b	1	; ei-0: Med-modi relocatoitu
 medtype		rs.b	1	; 0: 1-4, 1: 5-8, 2: 1-64
 
-ps3m_mname	rs.l	1	; ps3m:n informaation v‰lityst‰ varten
+ps3m_mname	rs.l	1	; ps3m:n for the transmission of information
 ps3m_numchans	rs.l	1
 ps3m_mtype	rs.l	1
 ps3m_samples	rs.l	1
@@ -830,14 +833,14 @@ ahi_stereolevpot_new	rs	1
 ahi_name_new		rs.b	44
 
 
-listheader	rs.b	MLH_SIZE	; tiedostolistan headeri
-filelistaddr	rs.l	1		; REQToolsin tiedostolistan osoite
+listheader	rs.b	MLH_SIZE	; the file list header
+filelistaddr	rs.l	1		; REQToolsin file list address
 
-loading		rs.b	1		; ~0: lataus meneill‰‰n
+loading		rs.b	1		; ~0: download in progress
 loading2	rs.b	1			; ~0: filejen addaus meneill‰‰n
 
-** InfoWindow kamaa
-infosample	rs.l	1		; samplesoittajan v‰liaikaisalue
+** InfoWindow stuff
+infosample	rs.l	1		; sample of the caller provision region
 swindowbase	rs.l	1
 suserport	rs.l	1
 srastport	rs.l	1
@@ -850,7 +853,7 @@ oldsgadsiz	rs	1
 skokonaan	rs.b	1
 _l845		rs.b	1
 
-******* LoadDatan muuttujia
+******* LoadDatan variables
 lod_a			rs.b	0
 lod_address		rs.l	1
 lod_length		rs.l	1
@@ -865,8 +868,8 @@ lod_xfderror		rs	1
 lod_archive		rs.b	1	 ; 0: ei archive, <>0: archive
 lod_tfmx			rs.b	1
 lod_pad			rs.b	1
-lod_kommentti	rs.b	1	 ; 0: ei oteta kommenttia
-lod_xpkfile		rs.b	1	 ; <>0: tiedosto oli xpk-pakattu
+lod_kommentti	rs.b	1	 ; 0: does not take a comment
+lod_xpkfile		rs.b	1	 ; <>0: the file was XPK-packed
 _l864			rs.b	1			
 lod_dirlock		rs.l	1
 lod_buf			rs.b	200
@@ -6859,14 +6862,14 @@ lista_alas
 
 zippowi	tst.b	uusikick(a5)
 	bne.b	.newo
-	bsr.w	sulje_ikkuna		; Vaihdetaan ikkunan kokoa
+	bsr.w	sulje_ikkuna		; Swap size of the window
 	bra.w	avaa_ikkuna
 .newo	move.l	windowbase(a5),a0	; Kick2.0+
 ;	lore	Intui,ZipWindow
 	move.l	_IntuiBase(a5),a6
 	jmp	_LVOZipWindow(a6)
 
-************************************** Funktion‰pp‰imet!
+************************************** function keys!
 
 fkeyaction
 	sub.b	#$50,d3
@@ -6878,17 +6881,17 @@ fkeyaction
 	bne.b	.oli
 	rts
 
-.oli	move.l	a0,sv_argvArray+4(a5)		; Parametri!
+.oli	move.l	a0,sv_argvArray+4(a5)		; Parameters!
 	clr.l	sv_argvArray+8(a5)
 
 	bsr.w	rbutton9				; freelist & shownames
 	bsr.w	rbutton4				; EJECT!
 
-	bra.w	komentojono			; tutkitaan komentojono.
+	bra.w	komentojono			; examination script.
 
 
 *******************************************************************************
-* Jotain gadgettia painettu, tehd‰‰n vastaava toiminto
+* Something gadget pressed, will provide a similar function
 *******
 
 
@@ -6971,8 +6974,8 @@ rsort
 .d
 
 	move	modamount(a5),d0
-	mulu	#4+24,d0		; noden osoite ja paino
-	addq.l	#8,d0			; tyhj‰‰ per‰‰n
+	mulu	#4+24,d0		; Noden address by weight and
+	addq.l	#8,d0			; empty formations
 	move.l	#MEMF_PUBLIC!MEMF_CLEAR,d1
 	bsr.w	getmem
 	move.l	d0,sortbuf(a5)
@@ -7017,7 +7020,7 @@ rsort
 	move.l	sortbuf(a5),a3
 
 .ml	moveq	#0,d5		; 1. sortattava node
-	moveq	#0,d6		; viimeinen sortattava node
+	moveq	#0,d6		; The last node sortattava
 
 	bsr.b	.eka
 	bne.b	.loph
@@ -7071,13 +7074,13 @@ rsort
 	bra.w	resh
 
 * a3 = lista
-* Hakee ensimm‰isen nimen, joka ei ole divideri
+* Searches for the first name that is not Divider
 
 
 
 .eka
 .ploop2
-	tst.l	(a3)					; Oliko viimeinen
+	tst.l	(a3)					; was last
 	beq.b	.ep2
 	move.l	(a3),a0
 	move.l	l_nameaddr(a0),a0	
@@ -7095,7 +7098,7 @@ rsort
 
 .toka
 .ploop3
-	tst.l	(a3)					; Oliko viimeinen
+	tst.l	(a3)					; was last
 	beq.b	.jep1
 	move.l	(a3),a0
 	move.l	l_nameaddr(a0),a0
@@ -7283,7 +7286,7 @@ rsort
 * Move
 *******
 rmove
-	tst.b	movenode(a5)		; Jos toistamiseen painetaan, menn‰‰n "play"hin
+	tst.b	movenode(a5)		; If the button is pressed a second time, let's go "play"
 	bne.w	rbutton1
 
 	cmp	#2,modamount(a5)
@@ -7316,7 +7319,7 @@ getcurrent
 * d0 = mik‰ moduuli
 getcurrent2
 
-* etsit‰‰n listasta vastaava kohta
+* search for the corresponding item from the list
 	lea	listheader(a5),a4
 .luuppo
 	TSTNODE	a4,a3
@@ -7340,7 +7343,7 @@ comment_file
 	beq.b	.x
 	move.l	a3,a4
 
-** kaapataan vanha kommentti
+** To capture from an old comment
 
 	moveq	#0,d4
 	pushpea	l_filename(a3),d1
@@ -17924,7 +17927,28 @@ text_SendIO			dc.b	"SendIO(A1)",0
 text_blitter_missing 	dc.b "Blitter missing",0
 text_delete_io_request		dc.b "delete io request",0
 
+text_tutki_moduuli					dc.b	"tutki_moduuli",0
+text_tutki_moduuli_ahi_use			dc.b	"tutki_moduuli_ahi_use",0
+text_tutki_moduuli_externalplayers		dc.b	"tutki_moduuli_externalplayers",0
+text_tutki_moduuli_noop				dc.b	"tutki_moduuli_noop",0
+text_tutki_moduuli_groupmode		dc.b	"tutki_moduuli_groupmode",0
+text_tutki_moduuli_rote				dc.b	"tutki_moduuli_rote",0
+
+text_tutki_moduuli_ptmix			dc.b "tutki_moduuli_ptmix",0
+text_tutki_moduuli_id_protracker		dc.b "tutki_moduuli_id_protracker",0
+
+text_tutki_moduuli_normal_player		dc.b "text_tutki_moduuli_normal_player",0
+text_tutki_moduuli_pro				dc.b "text_tutki_moduuli_pro",0
+
+
+text_unk_err		dc.b	"unk_err",0
 text_load_error		dc.b "load error",0
+text_load_error_1		dc.b "load error 1",0
+text_load_error_2		dc.b "load error 2",0
+
+text_diddbf	dc.b "lab_diddbf",0
+text_nipz		dc.b "lab_nipz",0
+text_nip		dc.b "lab_nip",0
 
 text_vol0 	dc.b "paula vol 0",0
 text_vol1 	dc.b "paula vol 1",0
@@ -18295,7 +18319,7 @@ intserver
 	tst.b	playing(a5)	
 	beq.w	.eirr
 	tst.b	vbtimeruse(a5)
-	bne.b	.eir
+	bne.w	.eir
 
 
  ifne have_cia_timers
@@ -21510,6 +21534,9 @@ loadmodule
 .diddbf	bsr.w	inforivit_clear
 	jsr	reslider
 
+	move.l	#text_diddbf,_out_text
+	jsr	print_text
+
 	move.l	(sp)+,d0
 	tst	d0
 	bne.w	.err			* virhe lataamisessa
@@ -21518,15 +21545,25 @@ loadmodule
 	bne.b	.nip
 
 	move.l	moduleaddress(a5),a0	* Oliko moduleprogram??
+
+	move.l	a0,_out_text
+	jsr	print_text
+
 	cmp.l	#"HiPP",(a0)
 	bne.b	.nipz
 	cmp	#"rg",4(a0)
-	beq.b	.nipa
+	beq.b	.nipa				; module name is "HiPPrg"	goto nipa
 .nipz
+
+	move.l	#text_nipz,_out_text
+	jsr	print_text
+
 	cmp.l	#"HIPP",(a0)
 	bne.b	.nip
 	cmp	#"RO",4(a0)
-	bne.b	.nip
+	bne.b	.nip				; module name is not "HIPPRO"	goto nip
+
+; module porgram
 
 .nipa
 	lea	-150(sp),sp
@@ -21536,30 +21573,42 @@ loadmodule
 	bne.b	.cop
 
 	jsr	freemodule
-	jsr	rbutton9				* lista tyhj‰ks
+	jsr	rbutton9				* empty list
 	move	#-1,playingmodule(a5)
 
-	move.l	sp,a0			* ohjelman nimi
-	moveq	#-1,d4			* lippu
-	bsr.w	loadprog			* ladataan moduuliohjelma
+	move.l	sp,a0			* the name of the program
+	moveq	#-1,d4			* ticket
+	bsr.w	loadprog			* loaded module program
 	lea	150+4(sp),sp
-;	addq	#4,sp			* ei palata samaan aliohjelmaan!
+;	addq	#4,sp			* does not return to the same subroutine!
 	rts
+
+; play module
+
 .nip
+
+	move.l	#text_nip,_out_text
+	jsr	print_text
 
 	DEBU	PAH2
 
-	bsr.w	tutki_moduuli
+	bsr.w	tutki_moduuli		; jump to Examination module
 	tst.l	d0
-	bne.b	.unk_err			* ep‰m‰‰r‰inen tiedosto
+	bne.b	.unk_err			* vague file
 
-	clr.b	contonerr_laskuri(a5)	* nollataan virhelaskuri
+	clr.b	contonerr_laskuri(a5)	* the error counter zero
 	rts	
 
 **** Error, and you should download the second module.
 .iik
+	move.l	#text_load_error_1,_out_text
+	jsr	print_text
+
 	cmp	#1,modamount(a5)
 	beq.b	loaderr
+
+	move.l	#text_load_error_2,_out_text
+	jsr	print_text
 
 	addq.b	#1,contonerr_laskuri(a5) 	* jif you happen to five consecutive
 	cmp.b	#5,contonerr_laskuri(a5) 	* errors, suspended
@@ -21580,10 +21629,13 @@ loadmodule
 
 
 .unk_err
+
+	move.l	#text_unk_err,_out_text
+	jsr	print_text
+
 	move.l	d0,-(sp)
 	jsr	freemodule
 	move.l	(sp)+,d0
-
 .err	
 	tst.b	contonerr(a5)		* Continue on error?
 	bne.b	.iik
@@ -22698,7 +22750,7 @@ loadfile
 
 
 .checkm
-        bsr.w   tutki_moduuli2
+        bsr.w   tutki_moduuli2		; Examination module 2
 	cmp.b	#2,d0
 	beq.w	.ptfoo
         cmp.b   #-1,d0
@@ -23173,12 +23225,15 @@ tutki_moduuli2
 
 tutki_moduuli
 
+	move.l	#text_tutki_moduuli,_out_text
+	jsr	print_text
+
  ifne PILA
 
 	lea	keyfile(a5),a4
 	push	a4
 
-	lea	.aag_id(pc),a1		 * onko AAG'97 keyfile?
+	lea	.aag_id(pc),a1		 * whether AAG'97 keyfile?
 	moveq	#4,d0
 	moveq	#40,d7
 	bsr.w	search
@@ -23193,39 +23248,55 @@ tutki_moduuli
 	btst	#AFB_68060,AttnFlags+1(a0)	* 68060?
 	bne.b	.nwr
 .screw	
-	moveq	#-128,d1		* odotellaan
-	ror.l	#7,d1
+	moveq	#-128,d1		; waiting for 0xFF80
+	ror.l	#7,d1			; before		= | xxxx xxxx | xxxx xxxx | 1111 1111 | 1000 0000 |
+						; becomes	= | 0000 000x | xxxx xxxx | xxxx xxx1 | 1111 1111 |
 	lore	Dos,Delay
 .nwr
 
 
- endc
+	move.l	#texttutki_moduuli_nwr,_out_text
+	jsr	print_text
 
+ endc
 
 	move.l	moduleaddress(a5),a4
 	move.l	modulelength(a5),d7
 
 
-	tst.b	keyfile+49(a5)	* datan v‰lilt‰ 38-50 pit‰‰ olla nollia
+	tst.b	keyfile+49(a5)	* data between 38-50 must be zero
 	beq.b	.zz
 	move.l	(a5),a2
 	addq.l	#1,IVSOFTINT+IV_CODE(a2)
 .zz
 
+	move.l	#text_tutki_moduuli_ahi_use,_out_text
+	jsr	print_text
+
 	tst.b	ahi_use(a5)
 	bne.b	.ohi
-	cmp.b	#2,ptmix(a5)	* Normaali vai miksaava PT replayeri?
+
+	move.l	#text_tutki_moduuli_ptmix,_out_text
+	jsr	print_text
+
+	cmp.b	#2,ptmix(a5)	* Normal or mix with PT REPLAYER?
 	beq.b	.ohi
+
+	move.l	#text_tutki_moduuli_id_protracker,_out_text
+	jsr	print_text
+
 	bsr.w	id_protracker
 	beq.w	.pro
 
 .ohi
 
+	move.l	#text_tutki_moduuli_normal_player,_out_text
+	jsr	print_text
 
-	clr.b	external(a5)		* Lippu: ei tartte player grouppia 
+	clr.b	external(a5)		* Ticket: do not need to group player
 
 	tst.b	sampleinit(a5)
-	bne.b	.noop
+	bne.w	.noop
 
 	tst.b	ahi_muutpois(a5)	
 	bne.b	.noop
@@ -23263,6 +23334,9 @@ tutki_moduuli
 	bsr.w	id_hippel
 	beq.w	.hippel
 
+	move.l	#text_tutki_moduuli_externalplayers,_out_text
+	jsr	print_text
+
 	tst.l	externalplayers(a5)
 	bne.b	.noop
 
@@ -23273,18 +23347,29 @@ tutki_moduuli
 	beq.w	.oldst
 .noop
 
+	move.l	#text_tutki_moduuli_noop,_out_text
+	jsr	print_text
 
-
-	tst.l	externalplayers(a5)	* ladataan playerit
+	tst.l	externalplayers(a5)			; loaded into the Player
 	bne.b	.rite
-	cmp.b	#2,groupmode(a5)	* onko disabled
+
+
+
+	cmp.b	#2,groupmode(a5)		; whether disabled
 	beq.w	.nopl
 
-	cmp.b	#3,groupmode(a5)	* tarpeen vaatiessa 1 replayeri?
+	move.l	#text_tutki_moduuli_groupmode,_out_text
+	jsr	print_text
+
+	cmp.b	#3,groupmode(a5)		; if necessary, one REPLAYER?
 	bne.b	.rote
-	st	external(a5)		* Lippu!
+	st	external(a5)				; Ticket!
 	bra.b	.rite
 .rote
+
+	move.l	#text_tutki_moduuli_rote,_out_text
+	jsr	print_text
+
 	bsr.w	loadplayergroup
 	move.l	d0,externalplayers(a5)
 	bne.b	.rite
@@ -23410,7 +23495,13 @@ tutki_moduuli
 	bra.b	.pro0
 
 
-.pro	clr.b	oldst(a5)
+.pro	
+
+	move.l	#text_tutki_moduuli_pro,_out_text
+	jsr	print_text
+
+
+	clr.b	oldst(a5)
 .pro0	pushpea	p_protracker(pc),playerbase(a5)
 	move	#pt_prot,playertype(a5)
 	moveq	#20-1,d0
@@ -23432,7 +23523,7 @@ tutki_moduuli
 	moveq	#MEMF_FAST,d1
 	lob	AvailMem
 	tst.l	d0
-	beq.b	.ex2
+	beq.w	.ex2
 
 	bsr.w	inforivit_warn
 	moveq	#65,d1
@@ -25750,7 +25841,7 @@ p_protracker
 .yee	rts
 
 
-* Tutkii koko songin, ja kattoo jos olisi erillisi‰ songeja.
+* Examines the entire Song, and replays if there were separate songeja.
 .getsongs
 	move.l	moduleaddress(a5),a0
 	cmp.b	#'K',951(a0)
@@ -25763,7 +25854,7 @@ p_protracker
 	move.l	moduleaddress(a5),a0
 	move.b	tempoflag(a5),d0
 	not.b	d0
-	bsr.w	modlen		* moduulin kesto ajallisesti
+	bsr.w	modlen		* The duration of the module in time
 	popm	d2-a6
 	move	d0,kokonaisaika(a5)	* mins
 	move	d1,kokonaisaika+2(a5)	* secs
@@ -25860,7 +25951,7 @@ p_protracker
 
 	cmp	a6,d4
 	blo.b	.eoe
-	moveq	#-1,d4			* Moduulin alkuun
+	moveq	#-1,d4			* top module
 .eoe	move.b	d4,(a4)+
 	bra.b	.next
 
@@ -27900,8 +27991,8 @@ p_med	jmp	.medinit(pc)
 * 3 = 1-64ch octamixplayer?
 
 
-** katotaan onko midisampleja.
-* a0 = 63 samplestructuree, 8 bytee kukin
+** shall be considered whether the midi samples.
+* a0 = 63 sample structure, each of the 8 byte
 	moveq	#63-1,d1
 	moveq	#0,d7
 .chmi	tst.b	4(a0)		; midich, 0 jos ei midi
@@ -27931,8 +28022,8 @@ p_med	jmp	.medinit(pc)
 	btst	#0,20(a0)		* mmdflags; MMD_LOADTOFASTMEM
 	beq.b	.yeep
 
-** jos on octamixplayerill‰ soitettava ja sijaitsee chipiss‰, koitetaan
-** siirt‰‰ fastiin:
+** if there is a public call octamix player and is situated Chip, s try
+** transfer fastiin:
 	bsr.w	siirra_moduuli2
 
 
