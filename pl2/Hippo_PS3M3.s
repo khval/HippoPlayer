@@ -9823,7 +9823,6 @@ timer_device_name		dc.b	"timer.device".0;
 
 intuition_library_name	dc.b	"intuition.library",0
  even
-_out_text			dc.l 0
 
 _lost_D0			dc.l 0
 _lost_D1			dc.l 0
