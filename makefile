@@ -65,7 +65,7 @@ keyfile.exe: keyfile0.s objects/keyfile0.o
 
 # compile modules
 
-objects/puu016.o: puu016.s kpl
+objects/puu016.o: ${pl} ${pl2} puu016.s kpl
 		$(compiler)  -m${cpu} -Iinclude -Fvobj -o objects/puu016.o puu016.s $(module_options)
 
 pl/%.off:	
