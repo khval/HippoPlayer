@@ -9444,27 +9444,38 @@ exitz	move	#$f00,$180(a6)
 ;	move	#$f0,$dff000		;Safe! (Hopefully...)
 	rts
 
+copy_label macro
+	move.l	a0,-(sp)
+	move.l	a1,-(sp)
+	lea	\1(pc),a0			; needs to be relative to program counter
+	lea	\2(pc),a1
+	move.l	a0,(a1)
+	move.l	(sp)+,a1
+	move.l	(sp)+,a0
+	endm
 
-print_text_macro	macro
-	movem.l	a3-a4,-(SP)
-	lea	\1(pc),a3			; needs to be relative to program counter
-	lea	_out_text(pc),a4
-	move.l	a3,(a4)
+print_text_m	macro
+	move.l	a0,-(sp)
+	move.l	a1,-(sp)
+	lea	\1,a0			
+	lea	out_text(pc),a1
+	move.l	a0,(a1)
+	move.l	(sp)+,a1
+	move.l	(sp)+,a0
 	bsr.l	print_text			; we use bsr becouse its relative to pc.
-	movem.l	(sp)+,a3-a4
 	endm
 
 open_timer_device
 ;	movem	D0-D7/A0-A6,-(SP)
 
 	move.l	#0,D0
-	print_text_macro	text_create_port
+	print_text_m	text_create_port(pc)
 
 	move.l	4.w,a6
 	jsr		_LVOCreateMsgPort(a6)
 	move.l	d0,timer_msgport
 
-	print_text_macro	text_return_value
+	print_text_m	text_return_value(pc)
 
 	; Is ok?
 	cmpi.w	#0,D0
@@ -9474,13 +9485,13 @@ open_timer_device
 	move.l	timer_msgport,A0	; 	MsgPort
 	move.l	#IOTV_SIZE,D0	;	Timer Request Size
 
-	print_text_macro	text_create_timer_request
+	print_text_m	text_create_timer_request(pc)
 
 	move.l	4.w,a6	;	ExecBase
 	jsr		_LVOCreateIORequest(a6)
 	move.l	D0,timer_request		; D0 is stored in timer_request
 
-	print_text_macro	text_return_value
+	print_text_m	text_return_value(pc)
 
 	; Is ok?
 	cmpi.l	#0,D0
@@ -9493,14 +9504,12 @@ open_timer_device
 	move.l	timer_request,A1
 	move.l	#0,D1					; flags
 
-	move.l	#text_open_device,_out_text
-	jsr		print_text
+	print_text_m	text_open_device(pc)
 
 	move.l	4.w,a6
 	jsr		_LVOOpenDevice(a6)
 
-	move.l	#text_return_value,_out_text
-	jsr		print_text
+	print_text_m	text_return_value(pc)
 
 .open_timer_device_failed
 ;	movem	(SP)+,D0-D7/A0-A6 	;		exit early
@@ -9514,14 +9523,13 @@ open_timer_device
 	
 	move.l  	D0,A0
 
-	move.l	#text_close_device,_out_text
-	jsr		print_text
+	print_text_m	text_close_device(pc)
+
 
 	move.l	4.w,a6				; ExceBase
 	jsr	_LVOCloseDevice(a6)
 
-	move.l	#text_delete_io_request,_out_text
-	jsr		print_text
+	print_text_m	text_delete_io_request(pc)
 
 	; DeleteIORequest
 	move.l	timer_request,A0
@@ -9540,15 +9548,14 @@ open_timer_device
 
 	move.l	D0,A0
 
-	move.l	#text_delete_msgport,_out_text
-	jsr		print_text
+	print_text_m	text_delete_msgport(pc)
+
 
 	jsr	_LVODeleteMsgPort(a6)
 
 .no_timer_msgport
 
-	move.l	#text_end_of_function,_out_text
-	jsr		print_text
+	print_text_m	text_end_of_function(pc)
 
 ;	movem	(SP)+,D0-D7/A0-A6
 	rts
@@ -9567,16 +9574,14 @@ close_timer_device
 	cmpi.w	#0,d0
 	BEQ		.no_timer_request
 
-	move.l	#text_abort_io,_out_text
-	jsr		print_text
+	print_text_m	text_abort_io(pc)
 
 	; AbortIO
 	move.l	d0,a1
 	move.l	4.w,a6
 	jsr	_LVOWaitIO(a6)
 
-	move.l	#text_WaitIO,_out_text
-	jsr		print_text
+	print_text_m	text_WaitIO(pc)
 
 	; WaitIO
 	move.l	timer_request,A1
@@ -9594,14 +9599,12 @@ close_timer_device
 	
 ;	move.l  	D0,A0
 
-	move.l	#text_close_device,_out_text
-	jsr		print_text
+	print_text_m	text_close_device(pc)
 
 	move.l	4.w,a6				; ExceBase
 	jsr	_LVOCloseDevice(a6)
 
-	move.l	#text_delete_io_request,_out_text
-	jsr		print_text
+	print_text_m	text_delete_io_request(pc)
 
 	; DeleteIORequest
 	move.l	timer_request,A0
@@ -9620,32 +9623,30 @@ close_timer_device
 
 	move.l	D0,A0
 
-	move.l	#text_delete_msgport,_out_text
-	jsr		print_text
+	print_text_m	text_delete_msgport(pc)
 
 	jsr	_LVODeleteMsgPort(a6)
 
 .no_timer_msgport
 
-	move.l	#text_end_of_function,_out_text
-	jsr		print_text
+	print_text_m	text_end_of_function(pc)
 
 ;	movem	(SP)+,D0-D7/A0-A6
 	rts
 
 
 print_text
-	move.l	D0,_lost_D0
-	move.l	D1,_lost_D1
-	move.l	D2,_lost_D2
-	move.l	A0,_lost_A0
-	move.l	A1,_lost_A1
-	move.l	A6,_lost_A6
+	move.l	D0,-(SP)	;	-20
+	move.l	D1,-(SP)	;	-16
+	move.l	D2,-(SP)	;	-12
+	move.l	A0,-(SP)	:	-8
+	move.l	A1,-(SP)	;	-4
+	move.l	A6,-(SP)	;	-0
 
-	move.l	#printf_args,A1
+	LEA		printf_args(pc),A1
 
-	move.l	(sp),(A1)+		; I think this should return program counter before jsr print_text
-	move.l	_out_text,(A1)+
+	move.l	-24(SP),(A1)+		; I think this should return program counter before jsr print_text
+	move.l	out_text(pc),(A1)+	; move address from memory relative to program counter
 	move.l	D0,(A1)+
 	move.l	D1,(A1)+
 	move.l	D2,(A1)+
@@ -9656,30 +9657,33 @@ print_text
 	move.l	D7,(A1)+
 
 	move.l	A0,(A1)+
-	move.l	_lost_A1,(A1)+
+	move.l	-4(SP),(A1)+
 	move.l	A2,(A1)+
+
 	move.l	A3,(A1)+
 	move.l	A4,(A1)+
 	move.l	A5,(A1)+
-	move.l	A6,(A1)+
+	move.l	(SP),(A1)+		; A6 should be the last thing on stack
 	move.l	A7,(A1)+
+	
+	LEA		PRINT_FMT(pc),a6	; I'm going to mess with a6 anyway
+	move.l	a6,d1
+	LEA		printf_args(pc),a6
+	move.l	a6,d2
 
-	move.l	#PRINT_FMT,D1	; FMT
-	move.l	#printf_args,D2	; ARGS
-
-	move.l	dosbase(pc),a6	; DosBase
+	move.l	dosbase(pc),a6	; dosbase
 	jsr		_LVOVPrintf(a6)	; Printf
 
 	move.l	#5,D1			; need to wait a bit so we can see it.
-	move.l	dosbase(pc),a6	; DosBase
+	move.l	dosbase(pc),a6	; dosbase
 	jsr		_LVODelay(a6)	
 
-	move.l	_lost_D0,D0
-	move.l	_lost_D1,D1
-	move.l	_lost_D2,D2
-	move.l	_lost_A0,A0
-	move.l	_lost_A1,A1
-	move.l	_lost_A6,A6
+	move.l 	(SP)+,A6
+	move.l	(SP)+,A1
+	move.l	(SP)+,A0
+	move.l	(SP)+,D2
+	move.l	(SP)+,D1
+	move.l	(SP)+,D0
 	rts
 
 mem_dump
@@ -9823,6 +9827,7 @@ timer_device_name		dc.b	"timer.device".0;
 
 intuition_library_name	dc.b	"intuition.library",0
  even
+out_text			dc.l 0
 
 _lost_D0			dc.l 0
 _lost_D1			dc.l 0
