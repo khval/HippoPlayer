@@ -1,0 +1,33 @@
+
+include makefile.cfg
+
+# compile modules
+
+
+
+pl/%.disable:
+		@true
+
+pl/%.hunk:	pl/%.o	pl/%.s
+		c/vlink  -bamigahunk -o $@ -s  $<
+
+%.hunk:	%.o	%.s
+		c/vlink  -bamigahunk -o $@ -s  $<
+
+pl/%.o:	pl/%.s
+		$(compiler)  -m${cpu} -Iinclude -Fvobj $< -o $@ $(module_options)
+
+pl2/%.o:	pl2/%.s
+		$(compiler)  -m${cpu} -Iinclude -Fvobj $< -o $@ $(module_options)
+
+# becouse this not Linux, Amiga can have .s or .S extension
+
+pl/%.o:	pl/%.S
+		$(compiler)  -m${cpu} -Iinclude -Fvobj $< -o $@ $(module_options)
+
+pl2/%.o:	pl2/%.S
+		$(compiler)  -m${cpu} -Iinclude -Fvobj $< -o $@ $(module_options)
+
+kpl: 	kpl14.s 
+		$(compiler)  -Iinclude -Fbin -o kpl $< $(module_options)
+
